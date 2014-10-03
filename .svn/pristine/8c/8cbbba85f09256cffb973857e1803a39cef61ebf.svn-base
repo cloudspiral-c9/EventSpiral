@@ -1,0 +1,127 @@
+package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.OutOfDateException;
+import jp.enpit.cloud.eventspiral.model.SeatCategory;
+import jp.enpit.cloud.eventspiral.model.EventNotFoundException;
+import jp.enpit.cloud.eventspiral.model.SeatCategoryAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.TicketModel;
+import jp.enpit.cloud.eventspiral.view.EventInfoEntity;
+import jp.enpit.cloud.eventspiral.view.RegisteringSeatCategoryForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出される座席情報登録処理のコントローラークラス
+ *
+ * @author 2014024
+ * @author 2014003
+ *
+ */
+public class RegisterSeatCategoryController {
+	/**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+    public RegisterSeatCategoryController() {
+        logger = Logger.getLogger(getClass().getName());
+    }
+
+    /**
+     * DWRより呼び出される座席種別登録処理のコントローラーメソッド
+     * <ol>
+     *  <li>formデータをバリデートする．</li>
+     *  <li>SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．</li>
+     *  <li>AccountクラスのisPromoter()を呼び出し、ユーザIDが興行主であるかチェックする．</li>
+     *  <li>ユーザIDが興行主でない場合、「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．</li>
+     *  <li>EventModelクラスのregisterSeatCategory()を呼び出し、データベースに座席情報を登録する．</li>
+     *  <li>EventInfoEntityクラスを生成し、イベント情報を登録する．</li>
+     *  <li>TicketModelクラスのgenerateTickets()を呼び出し、データベースに座席情報を登録する．</li>
+     *  <li>TEMFatalExceptionが発生した場合：</li>
+     *      <ol>
+     *          <li>
+     *              発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          </li>
+     *      </ol>
+     *  <li>NotLoggedInExceptionが発生した場合：</li>
+     *      <ol>
+     *          <li>
+     *              発生した例外と「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          </li>
+     *      </ol>
+     *  <li>EventNotFoundExceptionが発生した場合：</li>
+     *      <ol>
+     *          <li>
+     *          発生した例外と「指定されたイベントが存在しません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          </li>
+     *      </ol>
+     *  <li>OutOfDateExceptionが発生した場合：</li>
+     *      <ol>
+     *          <li>
+     *          発生した例外と「指定された座席種別は既に登録されています」というメッセージをTEMViewExceptionにラップして投げる．
+     *          </li>
+     *      </ol>
+     * @param eForm 登録する座席情報
+     * @return
+     * @throws TEMViewException TEMFatalException
+     * @throws OutOfDateException
+     * @throws EventAlreadyRegisteredException
+     */
+    public void execute(RegisteringSeatCategoryForm form) throws TEMViewException, EventAlreadyRegisteredException, OutOfDateException{
+        logger.info("RegisterSeatCategoryController.execute");
+        form.validate();
+
+        try{
+            Session session = new Session();
+            Account account = session.getCurrentAccount();
+
+            if(!account.isPromoter()) {
+                throw new TEMViewException("興行主アカウントでログインしてください");
+            }
+
+
+            EventModel seat = new EventModel();
+            SeatCategory seatCategory = seat.registerSeatCategory(form.getEventId(),
+                                                      form.getSeatName(),
+                                                      form.getCount(),
+                                                      form.getFee()
+                                                      );
+
+            EventModel eventModel = new EventModel();
+            Event event = eventModel.getEvent(form.getEventId());
+
+            EventInfoEntity eventInfoEntity = new EventInfoEntity();
+
+            eventInfoEntity.setEventId(event.getEventId());
+            eventInfoEntity.setEventName(event.getEventName());
+            eventInfoEntity.setEventDate(event.getEventDate());
+            eventInfoEntity.setTicketStartDate(event.getTicketStartDate());
+            eventInfoEntity.setDescription(event.getDescription());
+            eventInfoEntity.setPromoterId(account.getUserId());
+            TicketModel ticketModel = new TicketModel();
+            ticketModel.generateTickets(event,seatCategory);
+
+
+        } catch (TEMFatalException e){
+            throw new TEMViewException("システムエラーが発生しました．管理者に連絡して下さい", e);
+        } catch (NotLoggedInException e) {
+            throw new TEMViewException("興行主アカウントでログインしてください", e);
+        } catch (EventNotFoundException e){
+            throw new TEMViewException("指定されたユーザIDは既に存在します", e);
+        } catch (SeatCategoryAlreadyRegisteredException e) {
+            throw new TEMViewException("指定された座席種別は既に登録されています", e);
+        }
+    }
+
+}

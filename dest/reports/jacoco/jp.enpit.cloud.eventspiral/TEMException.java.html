@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TEMException.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral</a> &gt; <span class="el_source">TEMException.java</span></div><h1>TEMException.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral;
+
+public abstract class TEMException extends Exception {
+	private static final long serialVersionUID = -5405122900010930886L;
+
+	public TEMException() {
+<span class="nc" id="L7">		super();</span>
+<span class="nc" id="L8">	}</span>
+
+	public TEMException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+<span class="nc" id="L12">		super(message, cause, enableSuppression, writableStackTrace);</span>
+<span class="nc" id="L13">	}</span>
+
+	public TEMException(String message, Throwable cause) {
+<span class="fc" id="L16">		super(message, cause);</span>
+<span class="fc" id="L17">	}</span>
+
+	public TEMException(String message) {
+<span class="fc" id="L20">		super(message);</span>
+<span class="fc" id="L21">	}</span>
+
+	public TEMException(Throwable cause) {
+<span class="fc" id="L24">		super(cause);</span>
+<span class="fc" id="L25">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

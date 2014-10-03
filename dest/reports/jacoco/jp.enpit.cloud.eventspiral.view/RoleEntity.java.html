@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RoleEntity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">RoleEntity.java</span></div><h1>RoleEntity.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * &lt;ol&gt;
+ * &lt;li&gt;アカウント権限のエンティティクラス&lt;/li&gt;
+ * &lt;/ol&gt;
+ */
+public class RoleEntity extends AbstractEntity {
+	/**
+	 * アカウント権限
+	 * チェック項目は以下の通り．
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;空文字ではない．&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	@NotEmpty
+	private String role;
+	
+	/**
+	 * デフォルトコンストラクタ．roleを&quot;&quot;で初期化する
+	 */
+<span class="fc" id="L24">	public RoleEntity(){</span>
+<span class="fc" id="L25">	}</span>
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;アカウント権限を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return アカウント権限
+	 */
+	public String getRole() {
+<span class="fc" id="L33">		return role;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;アカウント権限をフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param role アカウント権限
+	 */
+	public void setRole(String role) {
+<span class="fc" id="L43">		this.role = role;</span>
+<span class="fc" id="L44">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

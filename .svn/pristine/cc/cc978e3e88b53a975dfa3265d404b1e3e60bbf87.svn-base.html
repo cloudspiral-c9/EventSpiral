@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>登録済みイベント一覧 | TEM</title>
+	<link rel="stylesheet" type="text/css" href="css/default.css" />
+
+	<script type='text/javascript' src='dwr/engine.js'></script>
+	<script type='text/javascript' src='dwr/interface/DisplayRegisteredEventListController.js'></script>
+	<script type='text/javascript' src='dwr/interface/DeleteEventController.js'></script>
+
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/tem-header.js"></script>
+	<script type="text/javascript" src="js/tem-utils.js"></script>
+	<script type='text/javascript'>
+
+	// 一ページ当たり何件表示させるか
+	var PAGE_LIMIT = 10;
+
+
+	/**
+	 * @処理概要
+	 * ページロード完了後に呼び出される初期化処理
+	 *
+	 * @処理フロー
+	 * - initHeader()を呼び出す．
+	 * - URLのパラメータから "n=?" の ? の部分を取り出し，変数nに格納する．このとき，tem-utils.jsのgetUrlVars()を使って良い.
+	 * - もし変数nの値が数値でないか，nが0以下の場合，nに1を設定する．(ヒント：isNaN)
+	 * - 変数nと定数PAGE_LIMITの2つを以下のJSON形式に変換し，変数formに格納する．
+	 *     (例) {startIndex:0, length:10}
+	 *     - このとき，startIndexにはページ番号を表すnを利用し，そのページで表示される最初のイベントの番号を表す数字が代入される(1ページ目なら0, 2ページ目なら10)
+	 * - DisplayRegisteredEventListController.execute(form)を呼び出す．
+	 *   成功時の処理（返り値は変数dataで受け取る）：
+	 *     - #event_wrapperを表示する．
+	 *     - updateEventList(data.list); を呼び出す．
+	 *     - updateNav(data.totalCount, n)を呼び出す．
+	 *   失敗時の処理：
+	 *     - updateErrorMsgを呼び出す．
+	 */
+	$(function() {
+		initHeader();
+
+	});
+
+	/**
+	 * @info 2013/07/01, shin
+	 *
+	 * @処理概要
+	 * サーバより取得したイベント一覧情報をHTMLページに表示する．
+	 *
+	 * @パラメータ
+	 *  - events
+	 *
+	 * @処理フロー
+	 * - 以下の内容をeventsの各要素について繰り返す．
+	 *   - 変数eventにeventsの内容を1つ取り出す．変数eventのJSON構造は以下の通り．
+	 *      (例) {eventId:000000001, eventName:"サンプルイベント", eventDate:"2013/01/01", ticketStartDate:"2013/12/31", description:"イベント概要"}
+	 *   - イベントIDとイベント名を使って，当該イベント名をクリックしたときのイベント詳細情報ページへのリンク情報を生成し，変数elinkに格納する．
+	 *      (例) <a href="eventDetail.html?eid=000000000000001">サンプルイベント</a>
+	 *   - 登録イベントの削除ボタンを生成する．
+	 *      (例) <input type="button" value="削除" onclick="confirmDeleteEvent('000000000000001')">
+	 *   - HTMLのテーブル#event_tabにリンク情報（elink），イベント開催日時，チケット販売開始日時，イベント説明をHTML表形式に変換して追加する．
+	 *     各日付情報はformatDate(date)関数を利用してフォーマット変換すること．
+	 *      (例) <tr>
+	 *             <td><a href="eventDetail.html?eid=000000000000001">サンプルイベント</a></td>
+	 *             <td class="date">2013/01/01</td>
+	 *             <td class="date">2013/12/31</td>
+	 *             <td>イベント概要</td>
+	 *             <td>削除ボタン（略）</td>
+	 *           </tr>
+	 */
+	function updateEventList(events) {
+	}
+
+	// ページ送りバーの更新
+	function updateNav(total, n) {
+
+	}
+
+	/**
+	 * @info 2013/07/01, shin
+	 *
+	 * @処理概要
+	 * 登録イベント削除ボタン押下時の確認処理
+	 *
+	 * @パラメータ
+	 *  - eventId
+	 *
+	 * @処理フロー
+	 * - メッセージ「本当に削除しますか？」とともにダイアログ画面を表示する．
+	 * - ダイアログ画面でOKが押された場合
+	 *   - deleteEvent(eventId) を呼び出す．
+	 */
+	function confirmDeleteEvent(eventId) {
+	}
+
+	/**
+	 * @info 2013/07/01, shin
+	 *
+	 * @処理概要
+	 * 登録イベント削除処理
+	 *
+	 * @パラメータ
+	 *  - eventId
+	 *
+	 * @処理フロー
+	 * - 変数eventIdを以下のJSON形式に変換し，変数formに格納する．
+	 *   (例) {eventId:"000000000000001"}
+	 * - DeleteEventController.execute(form)を呼び出す．
+	 *   成功時の処理：
+	 *     - ページをリロードする．
+	 *   失敗時の処理：
+	 *     - updateErrorMsgを呼び出す．
+	 */
+	function deleteEvent(eventId) {
+	}
+	// エラーメッセージの更新
+	function updateErrorMsg(msg, exc) {
+		$('#error_msg').text(msg);
+	}
+
+	</script>
+</head>
+
+<body>
+	<div id="header"></div>
+
+	<h2>登録済みイベント一覧</h2>
+	<div id="event_wrapper">
+		<table id="event_tab">
+			<tr>
+				<th>イベント名</th>
+				<th>イベント開催日時</th>
+				<th>チケット販売開始日時</th>
+				<th>説明</th>
+			</tr>
+		</table>
+	</div>
+	<div id="nav_wrapper">
+		<div id="total"></div>
+		<div id="nav"></div>
+	</div>
+
+	<div id="error_msg" class="error"></div>
+</body>
+
+</html>

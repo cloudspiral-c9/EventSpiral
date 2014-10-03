@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegisterEventController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">RegisterEventController.java</span></div><h1>RegisterEventController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.OutOfDateException;
+import jp.enpit.cloud.eventspiral.view.EventInfoEntity;
+import jp.enpit.cloud.eventspiral.view.RegisteringEventForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出されるイベント登録処理のコントローラークラス
+ *
+ * @author 2014016
+ *
+ */
+public class RegisterEventController {
+    /**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+<span class="fc" id="L32">    public RegisterEventController() {</span>
+<span class="fc" id="L33">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * DWRより呼び出される新規イベント登録処理のコントローラーメソッド.
+     * &lt;ol&gt;
+     *  &lt;li&gt;eFormデータをバリデートする．&lt;/li&gt;
+     *  &lt;li&gt;SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．&lt;/li&gt;
+     *  &lt;li&gt;AccountクラスのisPromoter()を呼び出し、ユーザIDが興行主であるかチェックする．&lt;/li&gt;
+     *  &lt;li&gt;ユーザIDが興行主でない場合、「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．&lt;/li&gt;
+     *  &lt;li&gt;EventModelクラスのregisterEvent()を呼び出し、データベースにイベント情報を登録する．&lt;/li&gt;
+     *  &lt;li&gt;EventInfoEntityクラスを生成し、イベント情報を登録する．&lt;/li&gt;
+     *  &lt;li&gt;EventInfoEntityオブジェクトをバリデートする．&lt;/li&gt;
+     *  &lt;li&gt;EventInfoEntityオブジェクト（登録したイベント情報）を返す．&lt;/li&gt;
+     *  &lt;li&gt;TEMFatalExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;NotLoggedInExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;EventAlreadyRegisteredExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「指定されたイベントは既に存在します」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;OutOfDateExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「イベント開催日時は未来の日時を入力してください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     * @param eForm 登録するイベント情報
+     * @return
+     * @throws TEMViewException TEMFatalException
+     */
+    public EventInfoEntity execute(RegisteringEventForm eForm) throws TEMViewException{
+<span class="fc" id="L76">        logger.info(&quot;RegisterEventController.execute&quot;);</span>
+<span class="fc" id="L77">        eForm.validate();</span>
+
+        try{
+<span class="fc" id="L80">            Session session = new Session();</span>
+<span class="fc" id="L81">            Account account = session.getCurrentAccount();</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if(!account.isPromoter()) {</span>
+<span class="fc" id="L84">                throw new TEMViewException(&quot;興行主アカウントでログインしてください&quot;);</span>
+            }
+
+
+<span class="fc" id="L88">            EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L89">            Event event = eventModel.registerEvent(eForm.getEventName(),</span>
+                                                      eForm.getEventDate(),
+                                                      eForm.getTicketStartDate(),
+                                                      eForm.getDescription(),
+                                                      account.getUserId());
+
+<span class="fc" id="L95">            EventInfoEntity eventInfoEntity = new EventInfoEntity();</span>
+<span class="fc" id="L96">            eventInfoEntity.setEventId(event.getEventId());</span>
+<span class="fc" id="L97">            eventInfoEntity.setEventName(event.getEventName());</span>
+<span class="fc" id="L98">            eventInfoEntity.setEventDate(event.getEventDate());</span>
+<span class="fc" id="L99">            eventInfoEntity.setTicketStartDate(event.getTicketStartDate());</span>
+<span class="fc" id="L100">            eventInfoEntity.setDescription(event.getDescription());</span>
+<span class="fc" id="L101">            eventInfoEntity.setPromoterId(account.getUserId());</span>
+
+<span class="fc" id="L103">            eventInfoEntity.validate();</span>
+
+<span class="fc" id="L105">            return eventInfoEntity;</span>
+
+<span class="nc" id="L107">        } catch (TEMFatalException e){</span>
+<span class="nc" id="L108">            throw new TEMViewException(&quot;システムエラーが発生しました．管理者に連絡して下さい&quot;, e);</span>
+<span class="fc" id="L109">        } catch (NotLoggedInException e) {</span>
+<span class="fc" id="L110">            throw new TEMViewException(&quot;興行主アカウントでログインしてください&quot;, e);</span>
+<span class="fc" id="L111">        } catch (EventAlreadyRegisteredException e){</span>
+<span class="fc" id="L112">            throw new TEMViewException(&quot;指定されたイベントは既に存在します&quot;, e);</span>
+<span class="nc" id="L113">        } catch (OutOfDateException e) {</span>
+<span class="nc" id="L114">            throw new TEMViewException(&quot;イベント開催日時は未来の日時を入力してください&quot;, e);</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

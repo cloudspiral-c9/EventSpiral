@@ -1,0 +1,77 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import java.awt.List;
+import java.util.Date;
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+
+public class EventModel {
+	private final String DB_EVENT_COLLECTION = "event";
+	/**
+	 * Loggerオブジェクト
+	 */
+	private Logger logger;
+
+	/**
+	 * DBオブジェクト
+	 */
+	private DB db;
+
+	/**
+	 * DBCollectionオブジェクト
+	 */
+	private DBCollection coll;
+
+	/**
+	 * Logger、DB、DBCollectionフィールドに各オブジェクトを設定する．
+	 */
+	public EventModel() {
+		logger = Logger.getLogger(getClass().getName());
+		db = DBUtils.getInstance().getDb();
+		coll = db.getCollection(DB_EVENT_COLLECTION);
+	}
+
+	public java.util.List<Event> getFutureEvents(int startIndex,int length)
+              throws TEMFatalException{
+
+		try {
+			DBObject query = new BasicDBObject("eventDate",new BasicDBObject("$gte",new Date()));
+			DBObject sortKeys = new BasicDBObject();
+			sortKeys.put("eventDate", 1);
+
+			DBCursor cursor = coll.find(query).sort(sortKeys).skip(startIndex).limit(length);
+
+			java.util.List<Event> EventList = (java.util.List<Event>) new List();
+			for(DBObject dbo : cursor){
+				Event event = new Event();
+				DBUtils.attachProperties(event, dbo);
+				EventList.add(event);
+			}
+
+			return EventList;
+		} catch (MongoException e) {
+			throw new TEMFatalException(e);
+		}
+	}
+
+	public int getFutureEventTotalCount() throws TEMFatalException{
+		int total;
+
+		try {
+			DBObject query = new BasicDBObject("eventDate", new BasicDBObject("$gte", new Date()));
+			total = coll.find(query).count();
+			return total;
+		} catch (MongoException e) {
+			throw new TEMFatalException(e);
+		}
+	}
+}

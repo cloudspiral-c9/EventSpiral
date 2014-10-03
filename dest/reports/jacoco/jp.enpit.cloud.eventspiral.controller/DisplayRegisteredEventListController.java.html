@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DisplayRegisteredEventListController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">DisplayRegisteredEventListController.java</span></div><h1>DisplayRegisteredEventListController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.EventDetailSearchResultEntity;
+import jp.enpit.cloud.eventspiral.view.SearchingForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出される登録済イベント一覧表示処理のコントローラークラス
+ *
+ * @author 2014016
+ *
+ */
+public class DisplayRegisteredEventListController {
+    /**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+<span class="fc" id="L35">    public DisplayRegisteredEventListController() {</span>
+<span class="fc" id="L36">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * DWRより呼び出されるイベント一覧表示のコントローラーメソッド.
+     *
+     * @param form リスト改ページ情報のためのフォームクラス．
+     * @return イベント情報の一覧
+     * @throws TEMViewException
+     */
+    public EventDetailSearchResultEntity execute(SearchingForm form) throws TEMViewException {
+
+<span class="fc" id="L48">        logger.info(&quot;DisplayRegisteredEventListController.execute&quot;);</span>
+<span class="fc" id="L49">        form.validate();</span>
+
+        try{
+<span class="fc" id="L52">            Session session = new Session();</span>
+<span class="fc" id="L53">            Account account = session.getCurrentAccount();</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if ( ! account.isPromoter() ) {</span>
+<span class="fc" id="L56">                throw new TEMViewException(&quot;興行主アカウントでログインしてください&quot;);</span>
+            }
+
+<span class="fc" id="L59">            EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L60">            int totalCount = eventModel.getTotalCount(account.getUserId());</span>
+
+<span class="fc" id="L62">            List&lt;Event&gt; eventLists = eventModel.getEvents(</span>
+                    form.getStartIndex(), form.getLength(), account.getUserId());
+
+<span class="fc" id="L65">            List&lt;EventDetailEntity&gt; eventDetailEntities = new ArrayList&lt;EventDetailEntity&gt;(totalCount);</span>
+
+<span class="fc" id="L67">            Iterator&lt;Event&gt; iEvent = eventLists.iterator();</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            while (iEvent.hasNext()) {</span>
+<span class="fc" id="L70">                Event eve = iEvent.next();</span>
+<span class="fc" id="L71">                EventDetailEntity ede = new EventDetailEntity();</span>
+
+<span class="fc" id="L73">                ede.setDescription(eve.getDescription());</span>
+<span class="fc" id="L74">                ede.setEventDate(eve.getEventDate());</span>
+<span class="fc" id="L75">                ede.setEventId(eve.getEventId());</span>
+<span class="fc" id="L76">                ede.setEventName(eve.getEventName());</span>
+<span class="fc" id="L77">                ede.setTicketStartDate(eve.getTicketStartDate());</span>
+
+<span class="fc" id="L79">                eventDetailEntities.add(ede);</span>
+<span class="fc" id="L80">            }</span>
+
+<span class="fc" id="L82">            EventDetailSearchResultEntity searchResult = new EventDetailSearchResultEntity();</span>
+<span class="fc" id="L83">            searchResult.setTotalCount(totalCount);</span>
+<span class="fc" id="L84">            searchResult.setList(eventDetailEntities);</span>
+<span class="fc" id="L85">            searchResult.validate();</span>
+
+<span class="fc" id="L87">            return searchResult;</span>
+
+<span class="nc" id="L89">        } catch (TEMFatalException e){</span>
+<span class="nc" id="L90">            String message = &quot;システムエラーが発生しました。管理者に連絡してください。&quot;;</span>
+<span class="nc" id="L91">            logger.severe(message);</span>
+<span class="nc" id="L92">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L93">        } catch (NotLoggedInException e) {</span>
+<span class="fc" id="L94">            String message = &quot;興行主アカウントでログインしてください&quot;;</span>
+<span class="fc" id="L95">            logger.severe(message);</span>
+<span class="fc" id="L96">            throw new TEMViewException(message, e);</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

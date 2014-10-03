@@ -1,0 +1,75 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+/**
+ * UC:DisplayEventDetail <br/>
+ *   testSetEventId01(): 変換対象と非変換対象が混在 <br/>
+ *   testValidate01(): 正常系 <br/>
+ *   testValidate02(): eventIdが空文字列 <br/>
+ *   testValidate03(): eventIdがnull <br/>
+ * @author 2014043(荒木)
+ */
+public class IdentifyingEventFormTest {
+
+
+	/**
+	 * 変換対象と非変換対象が混在 <br/>
+	 * 対象: {@link IdentifyingAccountForm#setPass} <br/>
+	 * 条件: 引数はサニタイズ対象文字を含む文字列 ("\"<&'abc'>\"") <br/>
+	 * 期待する結果: {@link IdentifyingAccountForm#getPass}で取得した
+	 *       ユーザIDが "&quot;&lt;&amp;&#39;abc&#39;&gt;&quot;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId01() throws Exception {
+		IdentifyingEventForm idEveForm = new IdentifyingEventForm();
+		idEveForm.setEventId("\"<&'abc'>\"");
+		String expected = "&quot;&lt;&amp;&#39;abc&#39;&gt;&quot;";
+		String actual = idEveForm.getEventId();
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 正常系 <br/>
+	 * 対象: {@link IdentifyingEventForm#validate} <br/>
+	 * 条件: 事前状態として eventIdに000000000000000000000001をセット．<br/>
+	 * 期待する結果: 戻り値が<code>true</code>．<br/>
+	 */
+	@Test
+	public void testValidate01() throws Exception {
+		IdentifyingEventForm idEveForm = new IdentifyingEventForm();
+		idEveForm.setEventId("000000000000000000000001");
+		boolean actual = idEveForm.validate();
+		assertTrue(actual);
+	}
+
+	/**
+	 * eventIdが空文字列 <br/>
+	 * 対象: {@link IdentifyingAccountForm#validate} <br/>
+	 * 条件: 事前状態として eventIdに空文字をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate02() throws TEMValidationException {
+		IdentifyingEventForm idEveForm = new IdentifyingEventForm();
+		idEveForm.setEventId("");
+		idEveForm.validate();
+	}
+
+	/**
+	 * eventIdがnull <br/>
+	 * 対象: {@link IdentifyingAccountForm#validate} <br/>
+	 * 条件: 事前状態として eventIdにnullをセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate03() throws TEMValidationException {
+		IdentifyingEventForm idEveForm = new IdentifyingEventForm();
+		idEveForm.setEventId(null);
+		idEveForm.validate();
+	}
+
+}

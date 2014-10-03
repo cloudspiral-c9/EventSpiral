@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>イベント詳細 | TEM</title>
+	<link rel="stylesheet" type="text/css" href="css/default.css" />
+
+	<script type='text/javascript' src='dwr/engine.js'></script>
+	<script type='text/javascript' src='dwr/interface/DisplayEventDetailController.js'></script>
+	<script type='text/javascript' src='dwr/interface/BuyTicketController.js'></script>
+
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/tem-header.js"></script>
+	<script type="text/javascript" src="js/tem-utils.js"></script>
+
+	<script type='text/javascript'>
+
+	/**
+	 * @処理概要
+	 * ready関数(画面が読み込まれた直後に自動的に呼ばれる)
+	 * URLからeventIdを取得し，対応するイベント情報を表示する
+	 *
+	 * @パラメータ
+	 * なし
+	 *．
+	 * @処理フロー
+	 * - tem-header.jsのinitHeader()を呼ぶ
+	 * - #event_detail_wrapperと#ticket_formを隠す
+	 * - URLのeid=の後の値をeventIdとして取得し，eventIdというkeyを持つjsonとして保存する．なお，tem-utils.jsのgetUrlVars()を利用して良い
+	 * - 例：getUrlVars()['hoge'] と呼び出すと http://www.com/hoge.html?hoge=aaa のaaaを取得できる
+	 * - DisplayEventDetailControllerのexecuteメソッドを呼び出す．
+	 * - 引数として上で取得したeventIdを持つjsonオブジェクトを持つ
+	 * - callbackされる匿名関数では，下記が実装されていること
+	 * 	- updateEventInfoとupdateSeatSelectOptionsにDisplayEventDetailController.executeの返り値を渡す
+	 * 	- #event_detail_wrapperを表示する
+	 * 	- DisplayEventDetailController.executeの返り値に含まれるboughtSeatsの長さが0より大きければ
+	 * 	- （すなわちユーザがログインしていれば）その場合のみ購入フォーム（#ticket_form）を表示する
+	 * - exceptionHandlerにおいて，updateErrorMsgを指定する
+	 * @必要な知識
+	 * - jquery hide()，show()関数の使い方
+	 * - URLパラメータの取得方法(tem-utils.jsのgetUrlVars()を利用して良い)
+	 *
+	 */
+	$(function() {
+		initHeader();
+
+		$("#event_detail_wrapper").hide();
+		$("#ticket_form").hide();
+
+		param = {
+			eventId: getUrlVars()["eid"]
+		};
+
+		// イベント詳細情報を表示
+		DisplayEventDetailController.execute(param, {
+			callback : function(data) {
+				updateEventInfo(data);
+				updateSeatSelectOptions(data);
+
+				$("#event_detail_wrapper").show();
+				bought = data.boughSeats;
+				if (bought && bought.length > 0) {
+					$("#ticket_form").show();
+				}
+			},
+			exceptionHandler : updateErrorMsg
+		});
+
+	});
+
+	/**
+	 * @処理概要
+	 * イベント詳細表示を更新する
+	 *
+	 * @パラメータ
+	 * data - イベント情報
+	 *．
+	 * @処理フロー
+	 * - #event_nameにイベント名を表示する
+	 * - #event_dateにイベント日時を表示する（日時のフォーマットについては，tem-utils.jsのformatDate関数を利用して良い）．
+	 * - #ticket_start_dateにチケット販売開始日時を表示する
+	 * - #descriptionにイベント説明を表示する
+
+	 * - 以下をイベント情報のtotalSeatsに含まれるシート種別情報の数だけ繰り返す
+	 * - 	#seat_tabに追加する行(<tr>)を構成するhtml要素を作成する．
+	 * - 	追加内容は座席種別，単価，席数，残席数，購入数．これらの要素はtrタグの中で，それぞれが<td>タグで囲まれる．
+	 * - 	例：<tr><td>S</td><td class="number">10000</td><td class="number">20</td><td class="number">15</td><td class="number">-</td></tr>
+	 * - 	なお，単価，席数，残席数，購入数についてはtdタグにclass="number"が付与されていること
+	 * - 	また，購入数については，非ログイン時(すなわち，イベント情報に含まれるboughtSeats要素のサイズが0)のときは
+	 * - 	"-"と表示するものとする．
+	 * - 	#seat_tabにtrタグ要素を追加する
+	 * @必要な知識
+	 * - jquery text(), append()関数の使い方
+	 * - 日時のフォーマット．tem-utils.jsのformatDateを使って良い．
+	 * - tableタグの構成．特にtr,tdタグについて
+	 */
+	function updateEventInfo(data) {
+		$("#event_name").text(data.eventName);
+		$("#event_date").text( formatDate(data.eventDate) );
+		$("#ticket_start_date").text( formatDate(data.ticketStartDate) );
+		$("#description").text(data.description);
+
+		for (i = 0; i < data.totalSeats.length; i++) {
+			category = data.totalSeats[i];
+			remain = data.remainSeats[i].count;
+			newLine = '<tr><td>'+category.seatName+'</td>';
+			newLine += '<td class="number">'+category.fee+'</td>';
+			newLine += '<td class="number">'+category.count+'</td>';
+			newLine += '<td class="number">'+remain+'</td>';
+			if (data.boughtSeats.length > 0) {
+				bought = data.boughtSeats[i].count;
+				newLine += '<td class="number">'+bought+'</td>';
+			} else {
+				newLine += '<td class="number">-</td>';
+			}
+			newLine += '</tr>';
+			$("#seat_tab").append(newLine);
+		}
+
+	}
+
+	/**
+	 * @処理概要
+	 * シート種別リスト（セレクトフォーム）の更新
+	 *
+	 * @パラメータ
+	 * data - イベント情報
+	 *．
+	 * @処理フロー
+	 * - 以下をイベント情報のtotalSeatsに含まれている座席種別情報の数だけ繰り返す
+	 * - 	optionタグの要素及びvalue属性にseatNameを追加する
+	 * - 	例：<option value='S'>S</option>
+	 * - 	#seat_listにoptionタグを追加する
+	 * @必要な知識
+	 * - jquery text(), append()関数の使い方
+	 * - <select>タグにおける<option>タグの構成．
+	 */
+	function updateSeatSelectOptions(data) {
+		$("#seat_list").html('');
+
+		for (category in data.totalSeats) {
+			option = '<option value="'+category.seatName+'">'+category.seatName+'</option>';
+			$("#seat_list").append(option);
+		}
+	}
+
+	/**
+	 * @処理概要
+	 * エラーメッセージの表示
+	 *
+	 * @パラメータ
+	 * msg - 例外文字列
+	 * exc - 例外オブジェクト
+	 * @処理フロー
+	 * - #error_msgに例外文字列を表示する
+	 * @必要な知識
+	 * - jquery text()関数の使い方
+	 * - DWRの例外ハンドラの使い方
+	 * @開発させるか
+	 * YES
+	 */
+	function updateErrorMsg(msg, exc) {
+		$('#error_msg').text(msg);
+	}
+
+	/**
+	 * @処理概要
+	 * 入力された購入枚数をチェックし，購入確認画面を表示する．
+	 * 確認がOKであればチケット購入処理(buyTicket())を呼び出す
+	 *
+	 * @パラメータ
+	 * なし
+	 *．
+	 * @処理フロー
+	 * - #ticket_formのcountとseatNameの値を取得し，それぞれ変数に代入する．
+	 * - countに入力された値が"整数でかつ1以上"でなければ，#error_msgに"チケット数には1以上の整数を入力してください"と表示する
+	 * - countに入力された値が"整数でかつ1以上"であれば，ダイアログで下記例のように表示し，ユーザがOKをクリックするとbuyTicket()を呼び出し
+	 * - キャンセルをクリックするとなにもしない．
+	 * - ダイアログに表示される文字列の例："S席を4枚本当に購入しますか？なお，現時点で購入できることを保証するものではありません。"
+	 *
+	 * @必要な知識
+	 * - JavaScriptの正規表現．matchの使い方
+	 * - IDが指定されたフォーム内の入力項目をname属性を利用して取得する方法
+	 * - ID要素へのtext表示方法
+	 * - window.confirmの使い方
+	 *
+	 */
+	function buyConfirm() {
+	}
+
+	/**
+	 * @処理概要
+	 * チケット購入処理
+	 * #ticket_formに入力された値を用いてチケット購入処理(BuyTicketController.execute)を呼び出す
+	 *
+	 * @パラメータ
+	 * なし
+	 *．
+	 * @処理フロー
+	 * - #ticket_formに入力された全ての値をjsonオブジェクトに変換する
+	 * - 変換したjsonオブジェクトのeventIdにURLパラメータ(eid)の値を追加する
+	 * - (tem-utils.jsのgetUrlVarsを利用して良い)
+	 * - BuyTicketControllerのexecuteメソッドを呼び出す．
+	 * - 引数はeventIdがセットされたjsonオブジェクト
+	 * - callbackされる匿名関数では，画面の更新のみ行う
+	 * 	- (JavaScriptのlocationオブジェクトのreload関数を使って良い)
+	 * - exceptionHandlerにはupdateErrorMsgを指定すること
+	 *
+	 * @必要な知識
+	 * - tem-utils.jsのgetUrlVarsの使い方
+	 * - locationオブジェクトのreload関数の使い方
+	 *
+	 */
+	function buyTicket() {
+
+	}
+
+	</script>
+</head>
+<body>
+	<div id="header"></div>
+
+	<h2>イベント詳細</h2>
+	<div id="event_detail_wrapper">
+
+		<h3 id="event_name"></h3>
+		<table>
+			<tr>
+				<td>イベント開催日時</td>
+				<td><span class="date" id="event_date"></span></td>
+			</tr>
+			<tr>
+				<td>チケット販売開始日時</td>
+				<td><span class="date" id="ticket_start_date"></span></td>
+			</tr>
+		</table>
+		<pre id="description"></pre>
+
+		<table id="seat_tab">
+			<tr>
+				<th>座席種別</th>
+				<th>単価</th>
+				<th>席数</th>
+				<th>残席数</th>
+				<th>購入数</th>
+			</tr>
+		</table>
+	</div>
+
+	<form id="ticket_form">
+		<h2>チケット購入</h2>
+		<table>
+			<tr>
+				<td>座席種別</td>
+				<td><select id="seat_list" name="seatName"></select></td>
+			</tr>
+			<tr>
+				<td>購入数</td>
+				<td><input type="text" name="count" /></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="button" value="購入" onclick="buyConfirm()"/></td>
+			</tr>
+		</table>
+	</form>
+
+	<div id="error_msg" class="error"></div>
+
+</body>
+
+</html>

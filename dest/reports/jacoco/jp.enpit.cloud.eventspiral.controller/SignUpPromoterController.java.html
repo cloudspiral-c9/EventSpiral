@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SignUpPromoterController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">SignUpPromoterController.java</span></div><h1>SignUpPromoterController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+/**
+ * DWRから呼び出される興行主アカウント登録処理のコントローラークラス
+ *
+ * @author 2014040 (a-miura)
+ */
+
+import java.util.logging.Logger;
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.AccountAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.AccountModel;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.view.IdentifyingAccountForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+public class SignUpPromoterController{
+	/**
+	 * Loggerオブジェクト
+	 */
+	private Logger logger;
+	/**
+	 * Loggerフィールドにオブジェクトを設定する．
+	 */
+<span class="fc" id="L27">	public SignUpPromoterController(){</span>
+<span class="fc" id="L28">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L29">	}</span>
+
+	/**
+	 * DWRより呼び出される興行主登録処理のコントローラーメソッド.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;formデータをバリデートする．&lt;/li&gt;
+	 *   &lt;li&gt;SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．&lt;/li&gt;
+	 *   &lt;li&gt;AccountクラスのisAdministrator()を呼び出し、ユーザIDが管理者であるかチェックする．&lt;/li&gt;
+	 *   &lt;li&gt;ユーザIDが管理者でない場合、「管理者アカウントでログインしてください」 というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *   &lt;li&gt;AccountModelクラスのregisterPromoter()を呼び出し、アカウント情報をデータベースに登録する．&lt;/li&gt;
+	 *   &lt;li&gt;&lt;tt&gt;TEMFatalException&lt;/tt&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 *   &lt;li&gt;&lt;tt&gt;AccountAlreadyRegisteredException&lt;/tt&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外と「指定されたユーザIDは既に存在します」 というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 *   &lt;li&gt;&lt;tt&gt;NotLoggedInException&lt;/tt&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外と「管理者アカウントでログインしてください」というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 *
+	 * @param form 登録するアカウント情報
+	 * @throws TEMViewException TEMFatalException, AccountAlreadyRegisteredException, NotLoggedInExceptionが発生した場合．
+	 */
+	public void execute (IdentifyingAccountForm form) throws TEMViewException {
+<span class="fc" id="L60">		logger.info(&quot;SignUpPromoterController.execute&quot;);</span>
+<span class="fc" id="L61">		form.validate();</span>
+
+		try{
+<span class="fc" id="L64">			Session session = new Session();</span>
+<span class="fc" id="L65">			Account account = session.getCurrentAccount();</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">			if ( ! account.isAdministrator() ) {</span>
+<span class="fc" id="L68">				throw new TEMViewException(&quot;管理者アカウントでログインしてください&quot;);</span>
+			}
+
+<span class="fc" id="L71">			AccountModel accountModel = new AccountModel();</span>
+<span class="fc" id="L72">			accountModel.registerPromoter(form.getUserId(),  form.getPass());</span>
+<span class="nc" id="L73">		} catch (TEMFatalException e){</span>
+<span class="nc" id="L74">			throw new TEMViewException(&quot;システムエラーが発生しました．管理者に連絡して下さい&quot;, e);</span>
+<span class="fc" id="L75">		} catch (AccountAlreadyRegisteredException e){</span>
+<span class="fc" id="L76">			throw new TEMViewException(&quot;指定されたユーザIDは既に存在します&quot;, e);</span>
+<span class="nc" id="L77">		} catch (NotLoggedInException e) {</span>
+<span class="nc" id="L78">			throw new TEMViewException(&quot;管理者アカウントでログインしてください&quot;, e);</span>
+<span class="fc" id="L79">		}</span>
+<span class="fc" id="L80">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

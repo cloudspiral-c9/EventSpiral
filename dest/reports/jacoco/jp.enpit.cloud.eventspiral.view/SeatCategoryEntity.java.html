@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SeatCategoryEntity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">SeatCategoryEntity.java</span></div><h1>SeatCategoryEntity.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ *
+ * 座席情報のエンティティクラス
+ *
+ * @author 2014003
+ *
+ */
+public class SeatCategoryEntity extends AbstractEntity {
+
+	/**
+     * 席数
+     * &lt;ul&gt;
+	 *   &lt;li&gt;0以上である&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+	@Min(value=0L)
+	private int count;
+
+    /**
+     * &lt;ul&gt;
+	 *   &lt;li&gt;0以上である&lt;/li&gt;
+	 * &lt;/ul&gt;
+     * 単価
+     */
+    @Min(value=0L)
+    private int fee;
+
+    /**
+     * 座席種別
+     * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない&lt;/li&gt;
+	 *   &lt;li&gt;空文字ではない&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String seatName;
+
+	/**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L49">	public SeatCategoryEntity() {</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+     * &lt;ol&gt;
+     *  &lt;li&gt;席数を取得する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @return 席数
+     */
+    public int getCount() {
+<span class="fc" id="L59">		return count;</span>
+	}
+
+    /**
+     * &lt;ol&gt;
+     * 		&lt;li&gt;countをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param count 席数
+     */
+	public void setCount(int count) {
+<span class="fc" id="L69">		this.count = count;</span>
+<span class="fc" id="L70">	}</span>
+
+	/**
+     * &lt;ol&gt;
+     *  &lt;li&gt;単価を取得する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @return 単価
+     */
+	public int getFee() {
+<span class="fc" id="L79">		return fee;</span>
+	}
+
+	/**
+     * &lt;ol&gt;
+     * 		&lt;li&gt;feeをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param fee 単価
+     */
+	public void setFee(int fee) {
+<span class="fc" id="L89">		this.fee = fee;</span>
+<span class="fc" id="L90">	}</span>
+
+	/**
+     * &lt;ol&gt;
+     *  &lt;li&gt;座席種別を取得する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @return 座席種別
+     */
+	public String getSeatName() {
+<span class="fc" id="L99">		return seatName;</span>
+	}
+
+	/**
+     * &lt;ol&gt;
+     * 		&lt;li&gt;seatNameをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param seatName 座席種別
+     */
+	public void setSeatName(String seatName) {
+<span class="fc" id="L109">		this.seatName = seatName;</span>
+<span class="fc" id="L110">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

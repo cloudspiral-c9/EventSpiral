@@ -1,0 +1,147 @@
+package jp.enpit.cloud.eventspiral.testutil;
+
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import com.mongodb.*;
+
+/**
+ * DBのeventコレクションを初期化するユーティリティクラス．
+ * @author y-takata
+ * @author 2014043
+ *
+ */
+public class EventInitializer2 {
+	private static String host = "localhost:27017";
+
+	/**
+	 * DB接続先ホストを設定する．
+	 * @param host ホスト名[:ポート番号]
+	 */
+	public static void setHost(String host) {
+		EventInitializer2.host = host;
+	}
+
+	/**
+	 * DBに接続し，eventコレクションの中身を空にする．
+	 * 接続ホストは，デフォルトでは "localhost:27017"．
+	 * {@link #setHost} を使って変更できる．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	private static DBCollection initEventColl() throws UnknownHostException {
+        MongoClient mongo = new MongoClient(host);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("event");
+		coll.drop(); // 中身を消去
+		return coll;
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数0件．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBN0() throws UnknownHostException {
+		initEventColl();
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数1件．
+	 * ただし，2013年以前のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBOld1() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "000000000000000000000002", "Cloud Spiral 2013",
+			newDate(2013, 6, 1, 12, 0, 0), // 2013年6月1日12時JST
+			newDate(2012, 6, 1, 12, 0, 0), // 2012年6月1日12時JST
+			"2013年のイベント"
+		);
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数1件．
+	 * ただし，2014年10月以降のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBNew1() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "000000000000000000000003", "Cloud Spiral 2014",
+			newDate(2014, 10, 1, 12, 0, 0), // 2014年10月1日12時JST
+			newDate(2013, 10, 1, 12, 0, 0), // 2013年10月1日12時JST
+			"2014年のイベント"
+		);
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数件．
+	 * うち，2件は2013年以前のイベント．残り6件は2014年10月以降のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDB() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "event0", "0",
+			newDate(2014, 7, 25, 0, 0, 0), // 2014年7月25日0時JST
+			newDate(2014, 7, 25, 0, 0, 0), // 2014年7月25日0時JST
+			"desc0"
+		);
+		addEvent(coll, "event1", "1",
+			newDate(2014, 7, 25, 1, 0, 0), // 2014年7月25日1時JST
+			newDate(2014, 7, 25, 1, 0, 0), // 2014年7月25日1時JST
+			"desc1"
+		);
+		addEvent(coll, "event2", "2",
+			newDate(2014, 7, 25, 2, 0, 0), // 2014年7月25日2時JST
+			newDate(2014, 7, 25, 2, 0, 0), // 2014年7月25日2時JST
+			"desc2"
+		);
+		addEvent(coll, "event3", "3",
+			newDate(2014, 7, 25, 3, 0, 0), // 2014年7月25日3JST
+			newDate(2014, 7, 25, 3, 0, 0), // 2014年7月25日3時JST
+			"desc3"
+		);
+		addEvent(coll, "event4", "4",
+			newDate(2014, 7, 25, 4, 0, 0), // 2014年7月25日4時JST
+			newDate(2014, 7, 25, 4, 0, 0), // 2014年7月25日4時JST
+			"desc4"
+		);
+		addEvent(coll, "event5", "5",
+			newDate(2014, 7, 25, 5, 0, 0), // 2014年7月25日5時JST
+			newDate(2014, 7, 25, 5, 0, 0), // 2014年7月25日5時JST
+			"desc5"
+		);
+		addEvent(coll, "event6", "6",
+			newDate(2014, 7, 25, 6, 0, 0), // 2014年7月25日6時JST
+			newDate(2014, 7, 25, 6, 0, 0), // 2014年7月25日6時JST
+			"desc6"
+		);
+	}
+
+	private static Date newDate(int year, int month, int mday, int hour, int min, int sec) {
+		return new GregorianCalendar(year, month - 1, mday, hour, min, sec).getTime();
+	}
+
+	private static DBObject newSeat(String seatName, int fee, int count) {
+		DBObject seat = new BasicDBObject();
+		seat.put("seatName", seatName);
+		seat.put("fee", fee);
+		seat.put("count", count);
+		return seat;
+	}
+
+	/**
+	 * eventコレクションに1件追加する．
+	 */
+	private static void addEvent(DBCollection coll,
+			String eventId, String eventName, Date eventDate, Date ticketStartDate,
+			String description)
+	{
+		DBObject event = new BasicDBObject();
+		event.put("eventId",     eventId);
+		event.put("eventName",   eventName);
+		event.put("eventDate",   eventDate);
+		event.put("ticketStartDate", ticketStartDate);
+		event.put("description", description);
+		coll.insert(event);
+	}
+}

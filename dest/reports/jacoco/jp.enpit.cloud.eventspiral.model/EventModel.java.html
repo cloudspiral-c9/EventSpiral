@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EventModel.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.model</a> &gt; <span class="el_source">EventModel.java</span></div><h1>EventModel.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+import java.util.logging.Logger;
+
+import org.bson.types.ObjectId;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+
+/**
+ * EventコレクションのModelクラス
+ * @author s-egawa
+ * @author 2014043（荒木）
+ * @author 2014024(西)
+ */
+public class EventModel {
+<span class="fc" id="L27">    private final String DB_EVENT_COLLECTION = &quot;event&quot;;</span>
+    /**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+    /**
+     * DBオブジェクト
+     */
+    private DB db;
+
+    /**
+     * DBCollectionオブジェクト
+     */
+    private DBCollection coll;
+
+    /**
+     * Logger、DB、DBCollectionフィールドに各オブジェクトを設定する．
+     */
+<span class="fc" id="L46">    public EventModel() {</span>
+<span class="fc" id="L47">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L48">        db = DBUtils.getInstance().getDb();</span>
+<span class="fc" id="L49">        coll = db.getCollection(DB_EVENT_COLLECTION);</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * 未来のイベント情報一覧を取得する.
+     * &lt;ol&gt;
+     *   &lt;li&gt;未来のイベント情報（eventDate が現在時刻よりあと）をstartIndex、lengthを指定して、イベント開催日時およびイベント名でソートしてデータベースから取得する．&lt;/li&gt;
+     *   {@code db.event.find({ &quot;eventDate&quot; : { &quot;$gte&quot; : new Date() }})
+                        .sort({ &quot;eventDate&quot; : 1, &quot;eventName&quot; : 1 })
+                        .skip(startIndex).limit(length)}
+     *   &lt;li&gt;上記コマンドを実現するためには，下記ステップでの実装が必要
+     *       DBObject型の変数を作成（ここでは変数名をqueryとする）
+     *     &lt;ol&gt;
+     *       &lt;li&gt;queryにnew BasicDBObjectを代入．ここでBasicDBObjectのコンストラクタに&quot;eventDate&quot;とnew BasicDBObject(&quot;$gte&quot;, new Date())を引数として与える&lt;/li&gt;
+     *       &lt;li&gt;ソート条件となるDBObjectを作成．DBObject sortKeys = new BasicDBObject();といった形でDBObjectを生成し，sortKeys.put(&quot;eventDate&quot;, 1);のように2つのソート基準を追加すれば良い&lt;/li&gt;
+     *       &lt;li&gt;必要なDBObjectを生成したら，DBCursorオブジェクトを作成し，findの結果を代入する．DBCursor cursor = coll.find(query).sort(sortKeys).skip(?).limit(?);というメソッドチェーンの形でfindの結果を取得できる&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;Eventオブジェクトを格納するリスト(List型の変数)を生成する．&lt;/li&gt;
+     *   &lt;li&gt;検索結果それぞれから，Eventオブジェクトを構築し，List型の変数に登録する．&lt;/li&gt;
+     *   &lt;li&gt;ここでDBCursor型の変数cursorはfor(DBObject dbo : corsor){}で全データを取得できる&lt;/li&gt;
+     *   &lt;li&gt;Event型の変数を宣言し，DBUtils.attachProperties(event, dbo);と呼び出すだけで，dboの値をEvent型の変数eventに代入できる(1つ1つ代入しても構わない)&lt;/li&gt;
+     *   &lt;li&gt;List型の変数を返す．&lt;/li&gt;
+     *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+     *     &lt;ol&gt;
+     *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param startIndex 取得開始インデックス
+     * @param length 取得数
+     * @return 未来のイベント情報（Eventオブジェクト）のリスト
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     */
+    public java.util.List&lt;Event&gt; getFutureEvents(int startIndex,int length)
+              throws TEMFatalException{
+<span class="fc" id="L85">        logger.info(&quot;EventModel.getFutureEvents&quot;);</span>
+
+        try {
+<span class="fc" id="L88">            DBObject query = new BasicDBObject(&quot;eventDate&quot;,new BasicDBObject(&quot;$gte&quot;,new Date()));</span>
+<span class="fc" id="L89">            DBObject sortKeys = new BasicDBObject();</span>
+<span class="fc" id="L90">            sortKeys.put(&quot;eventDate&quot;, 1);</span>
+<span class="fc" id="L91">            sortKeys.put(&quot;eventName&quot;, 1);</span>
+
+<span class="fc" id="L93">            DBCursor cursor = coll.find(query).sort(sortKeys).skip(startIndex).limit(length);</span>
+
+<span class="fc" id="L95">            List&lt;Event&gt; eventList = new ArrayList&lt;Event&gt;();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            for(DBObject dbo : cursor){</span>
+<span class="fc" id="L97">                Event event = new Event();</span>
+<span class="fc" id="L98">                DBUtils.attachProperties(event, dbo);</span>
+<span class="fc" id="L99">                eventList.add(event);</span>
+<span class="fc" id="L100">            }</span>
+
+<span class="fc" id="L102">            return eventList;</span>
+<span class="fc" id="L103">        } catch (MongoException e) {</span>
+<span class="fc" id="L104">            logger.severe(e.getMessage());</span>
+<span class="fc" id="L105">            throw new TEMFatalException(e);</span>
+        }
+    }
+
+    /**
+     * 未来のイベントのトータル数を取得する.
+     * &lt;ol&gt;
+     *   &lt;li&gt;未来のイベント情報（eventDate が現在時刻よりあと）をデータベースから検索し，件数を数える．&lt;/li&gt;
+     *   {@code db.event.find({ &quot;eventDate&quot; : { &quot;$gte&quot; : new Date() }}).count()}
+     *   &lt;li&gt;このmongoクエリをjava実装に変換するには・・・
+     *     &lt;ol&gt;
+     *       &lt;li&gt;findの中の{}の数に注目する&lt;/li&gt;
+     *       &lt;li&gt;{}ごとにBasicDBObjectを作成する．ここでは，DBObject query = new BasicDBObject(&quot;eventDate&quot;, new BasicDBObject(&quot;$gte&quot;, new Date()));という書き方か，内側のnew BasicDBObjectを別の変数で宣言しておいて利用するのでもどちらでも良い&lt;/li&gt;
+     *       &lt;li&gt;queryが完成したら，coll.findを呼び出し，引数にqueryを渡す．さらに，count()をfindの後に繋げるだけで，イベントの数を返すことができる&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+     *     &lt;ol&gt;
+     *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     * &lt;/ol&gt;
+     * @return 未来のイベントのトータル数
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     */
+    public int getFutureEventTotalCount() throws TEMFatalException{
+<span class="fc" id="L131">        logger.info(&quot;EventModel.getTotalCount&quot;);</span>
+
+        try {
+<span class="fc" id="L134">            DBObject query = new BasicDBObject(&quot;eventDate&quot;, new BasicDBObject(&quot;$gte&quot;, new Date()));</span>
+<span class="fc" id="L135">            return coll.find(query).count();</span>
+<span class="nc" id="L136">        } catch (MongoException e) {</span>
+<span class="nc" id="L137">            logger.severe(e.getMessage());</span>
+<span class="nc" id="L138">            throw new TEMFatalException(e);</span>
+        }
+    }
+
+
+    /**
+     * eventIDに対するイベント情報をデータベースに登録する．
+     * @return イベント情報（Eventオブジェクト）
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     * @throws EventAlreadyRegistredException すでにイベントが登録済みの場合．
+     * @throws OutOfDateException イベントの開催日時が過去の場合
+     */
+    public Event registerEvent(String eventName, Date eventDate, Date ticketStartDate, String description, String promoterId)
+                    throws TEMFatalException, EventAlreadyRegisteredException, OutOfDateException{
+<span class="fc" id="L152">        logger.info(&quot;EventModel.registerEvent&quot;);</span>
+
+        // 重複チェック
+<span class="fc" id="L155">        DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L156">        query.put(&quot;eventName&quot;, eventName);</span>
+<span class="fc" id="L157">        query.put(&quot;eventDate&quot;, eventDate);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (coll.findOne(query) != null) {</span>
+<span class="fc" id="L159">            String msg = &quot;Event:&quot; + eventName + &quot; has arleady registered.&quot;;</span>
+<span class="fc" id="L160">            logger.warning(&quot;EventModel.registerEvent: &quot; + msg);</span>
+<span class="fc" id="L161">            throw new EventAlreadyRegisteredException(msg);</span>
+        }
+
+        // 未来のイベントかどうかのチェック
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (!eventDate.after(new Date())){</span>
+<span class="fc" id="L166">            String msg = &quot;EventDate:&quot; + eventDate + &quot; is past now.&quot;;</span>
+<span class="fc" id="L167">            logger.warning(&quot;EventModel.registerEvent: &quot; + msg);</span>
+<span class="fc" id="L168">            throw new OutOfDateException(msg);</span>
+        };
+
+<span class="fc" id="L171">        ObjectId id = new ObjectId();</span>
+<span class="fc" id="L172">        String eventId = id.toString();</span>
+
+<span class="fc" id="L174">        Event event = new Event();</span>
+<span class="fc" id="L175">        event.setEventId(eventId);</span>
+<span class="fc" id="L176">        event.setEventName (eventName);</span>
+<span class="fc" id="L177">        event.setEventDate (eventDate);</span>
+<span class="fc" id="L178">        event.setTicketStartDate(ticketStartDate);</span>
+<span class="fc" id="L179">        event.setDescription(description);</span>
+<span class="fc" id="L180">        event.setPromoterId(promoterId);</span>
+
+<span class="fc" id="L182">        DBObject object = new BasicDBObject();</span>
+<span class="fc" id="L183">        DBUtils.convertToDBObject(object, event);</span>
+        try {
+<span class="fc" id="L185">            coll.insert(object);</span>
+<span class="nc" id="L186">        } catch (MongoException e){</span>
+<span class="nc" id="L187">            logger.severe(e.getMessage());</span>
+<span class="nc" id="L188">            throw new TEMFatalException(e);</span>
+<span class="fc" id="L189">        }</span>
+<span class="fc" id="L190">        return event;</span>
+    }
+
+
+    /**
+     * eventIdに対応するイベント情報の座席情報をデータベースに登録する．
+     * @return 登録したシート情報
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     * @throws EventNotFoundException 指定されたeventIdを持つイベントが見つからない場合
+     * @throws SeatCategoryAlreadyRegisteredException 指定されれたeventIdを持つイベントにseatNameのシートが既に登録されていた場合
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public SeatCategory registerSeatCategory(java.lang.String eventId,
+            java.lang.String seatName,
+            int count,
+            int fee)
+              throws TEMFatalException,
+                     EventNotFoundException,
+                     SeatCategoryAlreadyRegisteredException {
+<span class="fc" id="L209">        logger.info(&quot;EventModel.getRegisterSeatCategory&quot;);</span>
+
+<span class="fc" id="L211">        DBObject query = new BasicDBObject(&quot;eventId&quot;, eventId);</span>
+        // eventIdを持つイベントが見つからなかった場合
+<span class="fc" id="L213">        DBObject event = coll.findOne(query);</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (event == null) {</span>
+<span class="fc" id="L215">            String msg = &quot;EventId:&quot; + eventId + &quot; has not found.&quot;;</span>
+<span class="fc" id="L216">            logger.warning(&quot;EventModel.registerEvent: &quot; + msg);</span>
+<span class="fc" id="L217">            throw new EventNotFoundException(msg);</span>
+        }
+
+        //重複チェック
+<span class="fc" id="L221">       List&lt;DBObject&gt; totalSeats = (List&lt;DBObject&gt;)event.get(&quot;totalSeats&quot;);</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">       if(totalSeats == null) {</span>
+<span class="fc" id="L223">           totalSeats = new ArrayList&lt;DBObject&gt;();</span>
+       }
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        for(DBObject seat : totalSeats) {</span>
+<span class="fc" id="L226">                String sName = seat.get(&quot;seatName&quot;).toString();</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                if(sName.equals(seatName)){</span>
+<span class="fc" id="L228">                    String msg = &quot;seatName:&quot; + seatName + &quot; has arleady registered.&quot;;</span>
+<span class="fc" id="L229">                    logger.warning(&quot;EventModel.registerEvent: &quot; + msg);</span>
+<span class="fc" id="L230">                    throw new  SeatCategoryAlreadyRegisteredException(msg);</span>
+                }
+<span class="fc" id="L232">        }</span>
+
+        // seatName, count, feeから座席情報（SeatCategoryオブジェクト）を構築する．
+<span class="fc" id="L235">        SeatCategory seat = new SeatCategory();</span>
+<span class="fc" id="L236">        seat.setCount(count);</span>
+<span class="fc" id="L237">        seat.setFee(fee);</span>
+<span class="fc" id="L238">        seat.setSeatName(seatName);</span>
+
+<span class="fc" id="L240">        DBObject object = new BasicDBObject();</span>
+<span class="fc" id="L241">        DBUtils.convertToDBObject(object, seat);</span>
+
+<span class="fc" id="L243">        totalSeats.add(object);</span>
+<span class="fc" id="L244">        DBObject assign = new BasicDBObject(&quot;totalSeats&quot;, totalSeats);</span>
+<span class="fc" id="L245">        DBObject update = new BasicDBObject(&quot;$set&quot;, assign);</span>
+
+        try {
+<span class="fc" id="L248">            coll.update(query, update, true, false);</span>
+<span class="nc" id="L249">        } catch (MongoException e){</span>
+<span class="nc" id="L250">            logger.severe(e.getMessage());</span>
+<span class="nc" id="L251">            throw new TEMFatalException(e);</span>
+<span class="fc" id="L252">        }</span>
+<span class="fc" id="L253">        return seat;</span>
+    }
+
+
+    /**
+     * eventIdに対応するイベント情報を取得する．
+     * @return イベント情報
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     * @throws EventNotFoundException 指定されたeventIdを持つイベントが見つからない場合
+     */
+    public Event getEvent(java.lang.String eventId)
+            throws TEMFatalException,
+                   EventNotFoundException {
+<span class="fc" id="L266">        logger.info(&quot;EventModel.getFutureEvents&quot;);</span>
+
+<span class="fc" id="L268">        DBObject query = new BasicDBObject(&quot;eventId&quot;, eventId);</span>
+<span class="fc" id="L269">        DBObject search = new BasicDBObject();</span>
+
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        if ((search = coll.findOne(query)) == null) {</span>
+<span class="fc" id="L272">            String msg = &quot;EventId:&quot; + eventId + &quot; has not found.&quot;;</span>
+<span class="fc" id="L273">            logger.warning(&quot;EventModel.registerEvent: &quot; + msg);</span>
+<span class="fc" id="L274">            throw new EventNotFoundException(msg);</span>
+        }
+
+<span class="fc" id="L277">        Event event = new Event();</span>
+        try {
+<span class="fc" id="L279">            DBUtils.attachProperties(event, search);</span>
+<span class="nc" id="L280">        } catch (MongoException e){</span>
+<span class="nc" id="L281">            logger.severe(e.getMessage());</span>
+<span class="nc" id="L282">            throw new TEMFatalException(e);</span>
+<span class="fc" id="L283">        }</span>
+<span class="fc" id="L284">        return event;</span>
+    }
+
+    /**
+     * userIdに対応するイベント情報の一覧をstartIndexからlength分まで取得する
+     * &lt;ol&gt;
+     *   &lt;li&gt;userIdをキーにして、startIndex、lengthを指定して、 イベント開催日時およびイベント名でソートしてデータベースから取得する．&lt;/li&gt;
+     *   {@code db.event.find({ &quot;promoterId&quot; : userId })
+     *                          .sort({ &quot;eventDate&quot; : 1, &quot;eventName&quot; : 1 })
+     *                          .skip(startIndex).limit(limit)
+     *   &lt;li&gt;上記コマンドを実現するためには，下記ステップでの実装が必要
+     *       DBObject型の変数を作成（ここでは変数名をqueryとする）
+     *     &lt;ol&gt;
+     *       &lt;li&gt;queryにnew BasicDBObjectを代入．ここでBasicDBObjectのコンストラクタに&quot;promoterId&quot;と userIdを引数として与える&lt;/li&gt;
+     *       &lt;li&gt;ソート条件となるDBObjectを作成．DBObject sortKeys = new BasicDBObject();といった形でDBObjectを生成し，sortKeys.put(&quot;eventDate&quot;, 1);のように2つのソート基準を追加すれば良い&lt;/li&gt;
+     *       &lt;li&gt;必要なDBObjectを生成したら，DBCursorオブジェクトを作成し，findの結果を代入する．DBCursor cursor = coll.find(query).sort(sortKeys).skip(?).limit(?);というメソッドチェーンの形でfindの結果を取得できる&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;Eventオブジェクトを格納するリスト(List型の変数)を生成する．&lt;/li&gt;
+     *   &lt;li&gt;検索結果それぞれから，Eventオブジェクトを構築し，List型の変数に登録する．&lt;/li&gt;
+     *   &lt;li&gt;ここでDBCursor型の変数cursorはfor(DBObject dbo : corsor){}で全データを取得できる&lt;/li&gt;
+     *   &lt;li&gt;Event型の変数を宣言し，DBUtils.attachProperties(event, dbo);と呼び出すだけで，dboの値をEvent型の変数eventに代入できる(1つ1つ代入しても構わない)&lt;/li&gt;
+     *   &lt;li&gt;List型の変数を返す．&lt;/li&gt;
+     *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+     *     &lt;ol&gt;
+     *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param startIndex 取得開始インデックス
+     * @param length 取得数
+     * @return 指定ユーザの全イベント情報（Eventオブジェクト）のリスト
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     */
+    public java.util.List&lt;Event&gt; getEvents(int startIndex,int length,
+                                            java.lang.String userId)
+                                            throws TEMFatalException{
+<span class="fc" id="L321">        logger.info(&quot;EventModel.getEvents&quot;);</span>
+        try {
+<span class="fc" id="L323">            DBObject query = new BasicDBObject(&quot;promoterId&quot;,userId);</span>
+<span class="fc" id="L324">            DBObject sortKeys = new BasicDBObject();</span>
+<span class="fc" id="L325">            sortKeys.put(&quot;eventDate&quot;, 1);</span>
+<span class="fc" id="L326">            sortKeys.put(&quot;eventName&quot;, 1);</span>
+
+<span class="fc" id="L328">            DBCursor cursor = coll.find(query).sort(sortKeys).skip(startIndex).limit(length);</span>
+
+<span class="fc" id="L330">            List&lt;Event&gt; eventList = new ArrayList&lt;Event&gt;();</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">            for(DBObject dbo : cursor){</span>
+<span class="fc" id="L332">                Event event = new Event();</span>
+<span class="fc" id="L333">                DBUtils.attachProperties(event, dbo);</span>
+<span class="fc" id="L334">                eventList.add(event);</span>
+<span class="fc" id="L335">            }</span>
+
+<span class="fc" id="L337">            return eventList;</span>
+<span class="fc" id="L338">        } catch (MongoException e) {</span>
+<span class="fc" id="L339">            logger.severe(e.getMessage());</span>
+<span class="fc" id="L340">            throw new TEMFatalException(e);</span>
+        }
+    }
+
+
+    /**
+     * userIdに対応するイベント登録数を取得する
+     * &lt;ol&gt;
+     *   &lt;li&gt;引数として受け取ったuserIdを promoterId としてデータベースからイベントを検索し、件数を数える．&lt;/li&gt;
+     *   {@code db.event.find({ &quot;promoterId&quot; : userId}).count()}
+     *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+     *     &lt;ol&gt;
+     *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+     *     &lt;/ol&gt;
+     *   &lt;/li&gt;
+     * &lt;/ol&gt;
+     * @return 指定ユーザのイベント登録数
+     * @throws TEMFatalException MongoExceptionが発生した場合．
+     */
+    public int getTotalCount(java.lang.String userId)
+                            throws TEMFatalException{
+<span class="fc" id="L361">        logger.info(&quot;getTotalCount&quot;);</span>
+        try {
+<span class="fc" id="L363">            DBObject query = new BasicDBObject(&quot;promoterId&quot;, userId);</span>
+<span class="fc" id="L364">            return coll.find(query).count();</span>
+<span class="nc" id="L365">        } catch (MongoException e) {</span>
+<span class="nc" id="L366">            logger.severe(e.getMessage());</span>
+<span class="nc" id="L367">            throw new TEMFatalException(e);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ValidatedBean.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">ValidatedBean.java</span></div><h1>ValidatedBean.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+/**
+ * &lt;ol&gt;
+ * &lt;li&gt;HibernateValiadtor処理クラス&lt;/li&gt;
+ * &lt;/ol&gt;
+ */
+<span class="fc" id="L17">public abstract class ValidatedBean {</span>
+	/**
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;呼び元のクラス名のログをとる．&lt;/li&gt;
+	 *   &lt;li&gt;HibernateValiadtorを使用してバリデーションを行う．&lt;/li&gt;
+	 *   &lt;li&gt;制約違反が発生した場合は、TEMValidationExceptionを投げる．&lt;/li&gt;
+	 *   &lt;li&gt;制約違反がない場合はtrueを返す&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return boolean
+	 * @throws TEMValidationException HibernateValiadtorの各制約違反が発生した場合
+	 */
+	public boolean validate() throws TEMValidationException{
+<span class="fc" id="L29">		String className = getClass().getName();</span>
+<span class="fc" id="L30">		int index = className.lastIndexOf(&quot;.&quot;);</span>
+<span class="fc" id="L31">		className = className.substring(index + 1);</span>
+<span class="fc" id="L32">		Logger logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L33">		logger.info(className + &quot;.validate&quot;);</span>
+
+		try{
+<span class="fc" id="L36">			return ValidatedBean.&lt;ValidatedBean&gt;validate(this);</span>
+<span class="fc" id="L37">		} catch(TEMValidationException e){</span>
+<span class="fc" id="L38">			logger.warning(className + &quot;.validate: &quot; + e.getMessage());</span>
+<span class="fc" id="L39">			throw e;</span>
+		}
+	}
+
+	private static &lt;T extends ValidatedBean&gt; boolean validate(T bean) throws TEMValidationException {
+		// Hibernate Validator (HB) のvalidatorインスタンス生成
+<span class="fc" id="L45">		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();</span>
+<span class="fc" id="L46">		Validator validator = factory.getValidator();</span>
+
+		// バリデーション結果をConstraintViolationのSetとして取得する
+<span class="fc" id="L49">		Set&lt;ConstraintViolation&lt;T&gt;&gt; constraintViolations = validator.validate(bean);</span>
+
+		// 制約違反発見
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		if (constraintViolations.size() &gt; 0) {</span>
+<span class="fc" id="L53">			Iterator&lt;ConstraintViolation&lt;T&gt;&gt; iterator = constraintViolations.iterator();</span>
+
+<span class="fc" id="L55">			throw new TEMValidationException(iterator.next().getMessage());</span>
+		}
+<span class="fc" id="L57">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

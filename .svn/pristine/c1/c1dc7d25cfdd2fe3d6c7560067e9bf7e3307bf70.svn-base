@@ -1,0 +1,134 @@
+package jp.enpit.cloud.eventspiral.testutil;
+
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+/**
+ * UC[DisplayRegisteredEventList]のDBのeventコレクションを初期化するクラス
+ * @author 2014016
+ *
+ */
+public class EventInitializerUCDisplayRegisteredEventList {
+    private static String host = "localhost:27017";
+
+    /**
+     * DB接続先ホストを設定する．
+     * @param host ホスト名[:ポート番号]
+     */
+    public static void setHost(String host) {
+        EventInitializerUCDisplayRegisteredEventList.host = host;
+    }
+
+    /**
+     * DBに接続し，eventコレクションの中身を空にする．
+     * 接続ホストは，デフォルトでは "localhost:27017"．
+     * {@link #setHost} を使って変更できる．
+     * @throws UnknownHostException 接続先ホスト名を解決できない．
+     */
+    private static DBCollection initEventColl() throws UnknownHostException {
+        MongoClient mongo = new MongoClient(host);
+        DB db = mongo.getDB("tem");
+        DBCollection coll = db.getCollection("event");
+        coll.drop(); // 中身を消去
+        return coll;
+    }
+
+    /**
+     * 日付を変換
+     * @param year
+     * @param month
+     * @param mday
+     * @param hour
+     * @param min
+     * @param sec
+     * @return
+     */
+    public static Date newDate(int year, int month, int mday, int hour, int min, int sec) {
+        return new GregorianCalendar(year, month - 1, mday, hour, min, sec).getTime();
+    }
+
+    /**
+     * eventコレクションに1件追加する．
+     */
+    private static void addEvent(DBCollection coll,
+            String eventId, String eventName, Date eventDate, Date ticketStartDate,
+            String description, String promoterId, int totalSeats)
+    {
+        DBObject event = new BasicDBObject();
+        event.put("eventId",     eventId);
+        event.put("eventName",   eventName);
+        event.put("eventDate",   eventDate);
+        event.put("ticketStartDate", ticketStartDate);
+        event.put("description", description);
+        event.put("promoterId", promoterId);
+        event.put("totalSeats", totalSeats);
+        coll.insert(event);
+    }
+
+    /**
+     * eventコレクションを初期化．登録件数0件．
+     * @throws UnknownHostException 接続先ホスト名を解決できない．
+     */
+    public static void initDBN0() throws UnknownHostException {
+        initEventColl();
+    }
+
+
+    /**
+     * eventコレクションを初期化．登録件数13件．
+     * 結合テストシナリオ1用
+     * @throws UnknownHostException 接続先ホスト名を解決できない．
+     */
+    public static void initDB13Events() throws UnknownHostException {
+        DBCollection coll = initEventColl();
+        addEvent(coll, "event0", "0", newDate(2014, 10, 1, 0, 0, 0), newDate(2014, 9, 1, 0, 0, 0), "desc0", "promoter1", 100);
+        addEvent(coll, "event1", "1", newDate(2014, 10, 1, 1, 0, 0), newDate(2014, 9, 1, 1, 0, 0), "desc1", "promoter1", 101);
+        addEvent(coll, "event2", "2", newDate(2014, 10, 1, 2, 0, 0), newDate(2014, 9, 1, 2, 0, 0), "desc2", "promoter1", 102);
+        addEvent(coll, "event3", "3", newDate(2014, 10, 1, 3, 0, 0), newDate(2014, 9, 1, 3, 0, 0), "desc3", "promoter1", 103);
+        addEvent(coll, "event4", "4", newDate(2014, 10, 1, 4, 0, 0), newDate(2014, 9, 1, 4, 0, 0), "desc4", "promoter1", 104);
+        addEvent(coll, "event5", "5", newDate(2014, 10, 1, 5, 0, 0), newDate(2014, 9, 1, 5, 0, 0), "desc5", "promoter2", 105);
+        addEvent(coll, "event6", "6", newDate(2014, 10, 1, 6, 0, 0), newDate(2014, 9, 1, 6, 0, 0), "desc6", "promoter2", 106);
+        addEvent(coll, "event7", "7", newDate(2014, 10, 1, 7, 0, 0), newDate(2014, 9, 1, 7, 0, 0), "desc7", "promoter1", 107);
+        addEvent(coll, "event8", "8", newDate(2014, 10, 1, 8, 0, 0), newDate(2014, 9, 1, 8, 0, 0), "desc8", "promoter1", 108);
+        addEvent(coll, "event9", "9", newDate(2014, 10, 1, 9, 0, 0), newDate(2014, 9, 1, 9, 0, 0), "desc9", "promoter1", 109);
+        addEvent(coll, "event10", "10", newDate(2014, 10, 1, 10, 0, 0), newDate(2014, 9, 1, 10, 0, 0), "desc10", "promoter1", 110);
+        addEvent(coll, "event11", "11", newDate(2014, 10, 1, 11, 0, 0), newDate(2014, 9, 1, 11, 0, 0), "desc11", "promoter1", 111);
+        addEvent(coll, "event12", "12", newDate(2014, 10, 1, 12, 0, 0), newDate(2014, 9, 1, 12, 0, 0), "desc12", "promoter1", 112);
+    }
+
+    public static void initDB25Events() throws UnknownHostException {
+        DBCollection coll = initEventColl();
+        addEvent(coll, "event0", "0", newDate(2014, 10, 1, 0, 0, 0), newDate(2014, 9, 1, 0, 0, 0), "desc0", "promoter1", 100);
+        addEvent(coll, "event1", "1", newDate(2014, 10, 1, 1, 0, 0), newDate(2014, 9, 1, 1, 0, 0), "desc1", "promoter1", 100);
+        addEvent(coll, "event2", "2", newDate(2014, 10, 1, 2, 0, 0), newDate(2014, 9, 1, 2, 0, 0), "desc2", "promoter1", 100);
+        addEvent(coll, "event3", "3", newDate(2014, 10, 1, 3, 0, 0), newDate(2014, 9, 1, 3, 0, 0), "desc3", "promoter1", 100);
+        addEvent(coll, "event4", "4", newDate(2014, 10, 1, 4, 0, 0), newDate(2014, 9, 1, 4, 0, 0), "desc4", "promoter1", 100);
+        addEvent(coll, "event5", "5", newDate(2014, 10, 1, 5, 0, 0), newDate(2014, 9, 1, 5, 0, 0), "desc5", "promoter2", 100);
+        addEvent(coll, "event6", "6", newDate(2014, 10, 1, 6, 0, 0), newDate(2014, 9, 1, 6, 0, 0), "desc6", "promoter2", 100);
+        addEvent(coll, "event7", "7", newDate(2014, 10, 1, 7, 0, 0), newDate(2014, 9, 1, 7, 0, 0), "desc7", "promoter1", 100);
+        addEvent(coll, "event8", "8", newDate(2014, 10, 1, 8, 0, 0), newDate(2014, 9, 1, 8, 0, 0), "desc8", "promoter1", 100);
+        addEvent(coll, "event9", "9", newDate(2014, 10, 1, 9, 0, 0), newDate(2014, 9, 1, 9, 0, 0), "desc9", "promoter1", 100);
+        addEvent(coll, "event10", "10", newDate(2014, 10, 1, 10, 0, 0), newDate(2014, 9, 1, 10, 0, 0), "desc10", "promoter1", 100);
+        addEvent(coll, "event11", "11", newDate(2014, 10, 1, 11, 0, 0), newDate(2014, 9, 1, 11, 0, 0), "desc11", "promoter1", 100);
+        addEvent(coll, "event12", "12", newDate(2014, 10, 1, 12, 0, 0), newDate(2014, 9, 1, 12, 0, 0), "desc12", "promoter1", 100);
+        addEvent(coll, "event13", "13", newDate(2014, 10, 1, 13, 0, 0), newDate(2014, 9, 1, 13, 0, 0), "desc13", "promoter1", 100);
+        addEvent(coll, "event14", "14", newDate(2014, 10, 1, 14, 0, 0), newDate(2014, 9, 1, 14, 0, 0), "desc14", "promoter1", 100);
+        addEvent(coll, "event15", "15", newDate(2014, 10, 1, 15, 0, 0), newDate(2014, 9, 1, 15, 0, 0), "desc15", "promoter1", 100);
+        addEvent(coll, "event16", "16", newDate(2014, 10, 1, 16, 0, 0), newDate(2014, 9, 1, 16, 0, 0), "desc16", "promoter1", 100);
+        addEvent(coll, "event17", "17", newDate(2014, 10, 1, 17, 0, 0), newDate(2014, 9, 1, 17, 0, 0), "desc17", "promoter1", 100);
+        addEvent(coll, "event18", "18", newDate(2014, 10, 1, 18, 0, 0), newDate(2014, 9, 1, 18, 0, 0), "desc18", "promoter1", 100);
+        addEvent(coll, "event19", "19", newDate(2014, 10, 1, 19, 0, 0), newDate(2014, 9, 1, 19, 0, 0), "desc19", "promoter1", 100);
+        addEvent(coll, "event20", "20", newDate(2014, 10, 1, 20, 0, 0), newDate(2014, 9, 1, 20, 0, 0), "desc20", "promoter1", 100);
+        addEvent(coll, "event21", "21", newDate(2014, 10, 1, 21, 0, 0), newDate(2014, 9, 1, 21, 0, 0), "desc21", "promoter1", 100);
+        addEvent(coll, "event22", "22", newDate(2014, 10, 1, 22, 0, 0), newDate(2014, 9, 1, 22, 0, 0), "desc22", "promoter1", 100);
+        addEvent(coll, "event23", "23", newDate(2014, 10, 1, 23, 0, 0), newDate(2014, 9, 1, 23, 0, 0), "desc23", "promoter1", 100);
+        addEvent(coll, "event24", "24", newDate(2014, 10, 2, 24, 0, 0), newDate(2014, 9, 2, 24, 0, 0), "desc24", "promoter1", 100);
+    }
+}

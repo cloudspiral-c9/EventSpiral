@@ -1,0 +1,143 @@
+package jp.enpit.cloud.eventspiral.model;
+
+
+import java.util.logging.Logger;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+/**
+ * ticketコレクションのModelクラス
+ *
+ * @author 2014003
+ *
+ */
+public class TicketModel {
+
+	private final java.lang.String DB_TICKET_COLLECTION = "ticket";
+
+	/**
+	 * DBCollectionオブジェクト
+	 */
+	private com.mongodb.DBCollection coll;
+
+	/**
+	 * DBオブジェクト
+	 */
+	private com.mongodb.DB db;
+
+	/**
+	 * Loggerオブジェクト
+	 */
+	private java.util.logging.Logger logger;
+
+	/**
+	 * Logger、DB、DBCollectionフィールドに各オブジェクトを設定する．
+	 */
+	public TicketModel() {
+		logger = Logger.getLogger(getClass().getName());
+		db = DBUtils.getInstance().getDb();
+		coll = db.getCollection(DB_TICKET_COLLECTION);
+	}
+
+	/**
+	 * チケットを発行しデータベースに登録する.
+	 * <ol>
+	 *   <li>引数として受け取ったSeatCategoryオブジェクトのgetCount()を呼び出し、チケット枚数を取得する．</li>
+	 *   <li>チケット枚数分、以下の処理を繰り返す
+	 *     <ol>
+	 *       <li>イベントID、イベント名、イベント開始日時、チケット販売開始日時、座席種別、単価、予約状況（blank）を指定してチケットオブジェクトを作成する．</li>
+	 *       <li>データベースに作成したチケットオブジェクトを登録する．</li>
+	 *       {@code db.ticket.insert({
+                                "eventId" : event.eventId,
+                                "eventName" : event.eventName,
+                                "seatName" : seat.seatName,
+                                "eventDate" : event.eventDate,
+                                "ticketStartDate" : event.ticketStartDate,
+                                "fee" : seat.fee,
+                                "status" : "blank"
+                        })}
+	 *     </ol>
+	 *   </li>
+	 *   <li><code>MongoException</code>が発生した場合：
+	 *     <ol>
+	 *       <li>発生した例外を<code>TEMFatalException</code>にラップして投げる．</li>
+	 *     </ol>
+	 *   </li>
+	 * </ol>
+	 * @param event Eventオブジェクト
+	 * @param seat SeatCategoryオブジェクト
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 */
+	public void generateTickets(Event event, SeatCategory seat) throws TEMFatalException{
+
+		logger.info("TicketModel.generateTickets");
+
+		int ticketNum = seat.getCount();
+
+		try {
+			for (int i = 0; i < ticketNum; i++) {
+				DBObject query = new BasicDBObject();
+				query.put("eventId", event.getEventId());
+				query.put("eventName", event.getEventName());
+				query.put("seatName", seat.getSeatName());
+				query.put("eventDate", event.getEventDate());
+				query.put("ticketStartDate", event.getTicketStartDate());
+				query.put("fee", seat.getFee());
+				query.put("status", "blank");
+
+				coll.insert(query);
+			}
+		} catch (MongoException e) {
+			logger.severe(e.getMessage());
+			throw new TEMFatalException(e);
+		}
+	}
+
+	public void deleteAllTickets(java.lang.String eventId)
+			throws TEMFatalException, TicketNotFoundException,
+			TicketOccupiedException, OutOfDateException {
+	}
+
+	public java.util.List<SeatCategory> getRemainSeatCategories(Event event)
+            throws TEMFatalException{
+				return null;
+
+	}
+
+	public java.util.List<SeatCategory> getBoughtSeatCategories(Event event,
+            java.lang.String userId)
+              throws TEMFatalException{
+		return null;
+	}
+
+	public void buyTickets(java.lang.String eventId, java.lang.String seatName,
+			java.lang.String owner, int count) throws TEMFatalException,
+			TicketNotFoundException, SeatCategoryNotFoundException,
+			TicketSoldOutException, OutOfDateException {
+
+	}
+
+	public void cancelTickets(java.lang.String eventId,
+			java.lang.String seatName, java.lang.String owner)
+			throws TEMFatalException, TicketNotFoundException,
+			EventNotFoundException, OutOfDateException {
+
+	}
+
+	public int getTotalCountByFutureTicketGroup(java.lang.String userId)
+			throws TEMFatalException {
+		return 0;
+	}
+
+	/*public java.util.List<TicketGroup> getFutureBoughtTicketGroup(
+			java.lang.String userId, int startIndex, int length)
+			throws TEMFatalException {
+		return null;
+	}*/
+
+}

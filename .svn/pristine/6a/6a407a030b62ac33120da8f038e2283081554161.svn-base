@@ -1,0 +1,45 @@
+新しいほうを上に書くこと
+
+--------------------
+[レビュー日時] 2013/7/11 22:32
+[レビュー者] 高田 (2013100)
+[チェックリストバージョン] 20130710
+
+[対象]
+LoginControllerクラス
+LoginController#executeメソッド
+
+[チェックリスト項目]
+SA-1,2 OK
+SB-1,2 OK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+
+TA-1 OK
+TA-2,3 OK
+TA-4 OK
+TA-5 OK
+
+--------------------
+[レビュー日時] 2013/7/11 22:11
+[レビュー者] 高田 (2013100)
+[チェックリストバージョン] 20130710
+
+[対象]
+LoginControllerクラス
+LoginController#executeメソッド
+
+[チェックリスト項目]
+SA-1,2 OK
+SB-1,2 OK
+SC-1,2,3 OK
+SD-1 OK(executeメソッド), NG(LoginControllerクラス)
+ L19,20 日付も開発者も更新されていない
+SD-2 OK
+
+TA-1 OK
+TA-2,3 OK
+TA-4 OK
+TA-5 OK
+

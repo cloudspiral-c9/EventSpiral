@@ -1,0 +1,163 @@
+package jp.enpit.cloud.eventspiral.controller;
+
+import static org.junit.Assert.*;
+
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Date;
+
+
+import jp.enpit.cloud.eventspiral.testutil.EventInitializer;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.EventDetailSearchResultEntity;
+import jp.enpit.cloud.eventspiral.view.SearchingForm;
+
+import org.junit.Test;
+
+/**
+ * UC: イベント情報の一覧を表示する．<br/>
+ *   testExecute01(): イベント情報が登録されていない <br/>
+ *   testExecute02(): 過去のイベント情報のみ登録されている <br/>
+ *   testExecute03(): 未来のイベント情報が1件登録されている <br/>
+ *   testExecute04(): 未来のイベント情報が6件登録されている <br/>
+ *
+ * @author s-egawa
+ */
+
+public class DisplayEventListControllerTest {
+
+	private static Date newDate(int year, int month, int mday, int hour, int min, int sec) {
+		return new GregorianCalendar(year, month - 1, mday, hour, min, sec).getTime();
+	}
+
+	/**
+	 * イベント情報なし <br/>
+	 * 対象: {@link DisplayEventListController#execute} <br/>
+	 * 条件: {@link EventInitializer#initDBN0} でDBを初期化済み．
+	 * 期待する結果: 戻り値である{@link EventDetailSearchResultEntity}型のオブジェクトが
+	 * 	                        持つ未来のイベント情報数が0 <br/>
+	 */
+	@Test
+	public void testExecute01() throws Exception {
+		EventInitializer.initDBN0();// イベント情報が登録されていない
+		DisplayEventListController delCtr = new DisplayEventListController();
+		SearchingForm form = new SearchingForm();
+		form.setStartIndex(0);
+		form.setLength(10);
+		EventDetailSearchResultEntity actual = delCtr.execute(form);
+
+		assertEquals(0, actual.getTotalCount());// 登録されているイベント件数が0なので0になるはず
+		List<EventDetailEntity> events = actual.getList();
+		assertEquals(0, events.size());// リストのサイズも0
+	}
+
+	/**
+	 * 未来のイベント情報なし（過去のイベント情報のみ） <br/>
+	 * 対象: {@link DisplayEventListController#execute} <br/>
+	 * 条件: {@link EventInitializer#initDBOld1} でDBを初期化済み．
+	 * 期待する結果: 戻り値である{@link EventDetailSearchResultEntity}型のオブジェクトが
+	 * 	                        持つ未来のイベント情報数が0 <br/>
+	 */
+	@Test
+	public void testExecute02() throws Exception {
+		EventInitializer.initDBOld1();// 過去のイベント情報を1件登録
+		DisplayEventListController delCtr = new DisplayEventListController();
+		SearchingForm form = new SearchingForm();
+		form.setStartIndex(0);
+		form.setLength(10);
+		EventDetailSearchResultEntity actual = delCtr.execute(form);
+
+		assertEquals(0, actual.getTotalCount());// 未来のイベント件数なので0になるはず
+		List<EventDetailEntity> events = actual.getList();
+		assertEquals(0, events.size());// リストのサイズも0
+	}
+
+	/**
+	 * 未来のイベント情報が1件登録されている <br/>
+	 * 対象: {@link DisplayEventListController#execute} <br/>
+	 * 条件: {@link EventInitializer#initDBNew1} でDBを初期化済み．
+	 * 期待する結果: 戻り値である{@link EventDetailSearchResultEntity}型のオブジェクトが
+	 * 	                        持つ未来のイベント情報数が1 <br/>
+	 */
+	@Test
+	public void testExecute03() throws Exception {
+		EventInitializer.initDBNew1();
+		DisplayEventListController delCtr = new DisplayEventListController();
+		SearchingForm form = new SearchingForm();
+		form.setStartIndex(0);
+		form.setLength(10);
+		EventDetailSearchResultEntity actual = delCtr.execute(form);
+
+		assertEquals(1, actual.getTotalCount());
+		List<EventDetailEntity> events = actual.getList();
+		assertEquals(1, events.size());
+		//リストの中身を確認
+		assertEquals("000000000000000000000003", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 0, 0).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 0, 0).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベント", events.get(0).getDescription());
+	}
+
+	/**
+	 * 未来のイベント情報が6件,過去のイベント情報が2件登録されている <br/>
+	 * 対象: {@link DisplayEventListController#execute} <br/>
+	 * 条件: {@link EventInitializer#initDB} でDBを初期化済み．
+	 * 期待する結果: 戻り値である{@link EventDetailSearchResultEntity}型のオブジェクトが
+	 * 	                        持つ未来のイベント情報数が6 <br/>
+	 */
+	@Test
+	public void testExecute04() throws Exception {
+		EventInitializer.initDB();
+		DisplayEventListController delCtr = new DisplayEventListController();
+		SearchingForm form = new SearchingForm();
+		form.setStartIndex(0);
+		form.setLength(10);
+		EventDetailSearchResultEntity actual = delCtr.execute(form);
+
+		assertEquals(6, actual.getTotalCount());
+		List<EventDetailEntity> events = actual.getList();
+		assertEquals(6, events.size());
+		//1件目
+		assertEquals("000000000000000000000003", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 0, 0).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 0, 0).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベント", events.get(0).getDescription());
+
+		//2件目
+		assertEquals("000000000000000000000004", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2015", events.get(0).getEventName());
+		assertEquals(0, newDate(2015, 6, 1, 12, 0, 0).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2014, 6, 1, 12, 0, 0).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2015年のイベント", events.get(0).getDescription());
+
+		//3件目
+		assertEquals("000000000000000000000064", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014その100", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 1, 0).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 1, 0).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベントその100", events.get(0).getDescription());
+
+		//4件目
+		assertEquals("000000000000000000000065", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014その101", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 0, 1).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 0, 1).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベントその101", events.get(0).getDescription());
+
+		//5件目
+		assertEquals("000000000000000000000066", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014その102", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 0, 1).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 0, 1).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベントその102", events.get(0).getDescription());
+
+		//6件目
+		assertEquals("000000000000000000000067", events.get(0).getEventId());
+		assertEquals("Cloud Spiral 2014その103", events.get(0).getEventName());
+		assertEquals(0, newDate(2014, 10, 1, 12, 0, 0).compareTo(events.get(0).getEventDate()));
+		assertEquals(0, newDate(2013, 10, 1, 12, 0, 0).compareTo(events.get(0).getTicketStartDate()));
+		assertEquals("2014年のイベントその103", events.get(0).getDescription());
+	}
+}

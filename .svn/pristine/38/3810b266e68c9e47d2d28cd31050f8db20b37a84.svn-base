@@ -1,0 +1,173 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Date;
+import java.util.List;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+
+import org.junit.Test;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+/**
+ * UC:イベント一覧の表示 <br />
+ * testGetFutureEvents01(): 正常系. <br />
+ * testGetFutureEvents02(): startIndexが不正<br />
+ * testGetFutureEvents03(): startIndexがイベント数より多い<br />
+ * testGetFutureEvents04(): Indexが不正<br />
+ * testGetFutureEvents05(): Indexがイベント数より多い<br />
+ * testGetFutureEventTotalCount01():正常系<br />
+ * testGetFutureEventTotalCount02():取得できるイベントが存在しない<br />
+ *
+ * @author 2014016
+ *
+ */
+public class EventModelTest {
+
+    public static void addEvent(DBCollection coll, String eventId, Date eventDate) {
+        DBObject event = new BasicDBObject();
+        event.put("envetId", eventId);
+        event.put("envetDate", eventDate);
+        coll.insert(event);
+    }
+
+    // DB初期化
+    private void initDB0() throws Exception {
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+        DBCollection coll = db.getCollection("event");
+        coll.drop();
+    }
+
+    // DB初期化(5件)
+    private void initDB() throws Exception {
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+        DBCollection coll = db.getCollection("event");
+        coll.drop();
+        Date date = new Date();
+        int day = 86400000;
+        addEvent(coll, "0", new Date(date.getTime()));
+        addEvent(coll, "1", new Date(date.getTime() + day*10));
+        addEvent(coll, "2", new Date(date.getTime() + day*20));
+        addEvent(coll, "3", new Date(date.getTime() + day*30));
+        addEvent(coll, "4", new Date(date.getTime() + day*40));
+    }
+
+    /**
+     * イベント取得成功 <br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: startIndexが0,Indexが2
+     * 期待する結果:eventが3つ取得できる
+     * @throws Exception
+     */
+    @Test
+    public void tesGetFutureEvents01() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(0, 2);
+
+        // 件数の検査
+        assertEquals(3, eventList.size());
+
+        assertEquals(0, eventList.get(0).getEventId());
+        assertEquals(1, eventList.get(1).getEventId());
+        assertEquals(2, eventList.get(2).getEventId());
+    }
+
+    /**
+     * 例外: 不正なstartIndex<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: startIndexが-1,Indexが2
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test(expected = TEMFatalException.class)
+    public void tesGetFutureEvents02() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(-1, 2);
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+    /**
+     * 例外: startIndexがイベント数より大きい<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: startIndexが10,Indexが20
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test(expected = TEMFatalException.class)
+    public void tesGetFutureEvents03() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(10, 20);
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+    /**
+     * 例外: 不正なIndex<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: startIndexが1,Indexが-2
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test(expected = TEMFatalException.class)
+    public void tesGetFutureEvents04() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(1,-2);
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+    /**
+     * 例外: Indexがイベント数より大きい<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: startIndexが0,Indexが20
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test(expected = TEMFatalException.class)
+    public void tesGetFutureEvents05() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(0, 20);
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+
+
+    /**
+     * イベント数取得成功 <br />
+     * 対象: {@link EventModel#getFutureEventTotalCount()} <br />
+     * 条件: initDBで初期化済みである
+     * 期待する結果:eventが4件取得できる
+     * @throws Exception
+     */
+    @Test
+    public void tesGetFutureEventTotalCount01() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        int event_num = eventModel.getFutureEventTotalCount();
+
+        // 件数の検査
+        assertEquals(4, event_num);
+    }
+
+    /**
+     * 取得できるイベントが存在しない <br />
+     * 対象: {@link EventModel#getFutureEventTotalCount()} <br />
+     * 条件: initDB0で初期化済みである
+     * 期待する結果:期待する結果: {@link TEMFatalException}が発生
+     * @throws Exception
+     */
+    @Test(expected=TEMFatalException.class)
+    public void tesGetFutureEventTotalCount() throws Exception{
+        initDB(); //DB初期化(5件登録)
+        EventModel eventModel = new EventModel();
+        int event_num = eventModel.getFutureEventTotalCount();
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+}

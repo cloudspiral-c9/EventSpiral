@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ConversionUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.util</a> &gt; <span class="el_source">ConversionUtils.java</span></div><h1>ConversionUtils.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.util;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import org.apache.commons.beanutils.PropertyUtils;
+
+<span class="nc" id="L12">public class ConversionUtils {</span>
+
+<span class="fc" id="L14">	private static Logger logger = Logger.getLogger(DBUtils.class.getName());</span>
+
+	/**
+	 * &lt;p&gt;
+	 * Object ←→ Objectの変換（form→model あるいは model←entity のデータ変換に利用）．
+	 * 指定されたfromオブジェクトのプロパティを，別の型のdestオブジェクトに移し替える．
+	 * destが持たないfromのプロパティは無視される．
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用例：
+	 *   Event event = getEvent();
+	 *   EventDetailEntity entity = new EventDetailEntity();
+	 *   ConversionUtils.convert(entity, event);
+	 *   return entity;
+	 * &lt;/pre&gt;
+	 * 
+	 * @param dest 変換先のオブジェクト
+	 * @param from 変換元のオブジェクト
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static void convert(Object dest, Object from){
+
+		// 指定要素のインタフェースを全て調べる
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		for (Class&lt;?&gt; c : dest.getClass().getInterfaces()) {</span>
+			// List を発見した場合，諦める
+<span class="nc bnc" id="L40" title="All 2 branches missed.">			if (c == java.util.List.class) {</span>
+<span class="nc" id="L41">				logger.severe(&quot;ConversionUtils.convert() はList&lt;T&gt;型オブジェクトの変換に対応していません．&quot;);</span>
+<span class="nc" id="L42">				throw new RuntimeException();</span>
+			}
+		}
+
+		// fromの持つ全ての属性をそれぞれ探索
+<span class="fc bfc" id="L47" title="All 2 branches covered.">		for (Field fromField : from.getClass().getDeclaredFields()) {</span>
+<span class="fc" id="L48">			String fieldName = fromField.getName();</span>
+			// カバレッジツールが埋め込む&quot;$jaccoData&quot;というフィールドを無視
+<span class="fc bfc" id="L50" title="All 2 branches covered.">			if(fieldName == &quot;$jacocoData&quot;) continue;</span>
+			
+			try {
+				// 属性値を取得
+<span class="fc" id="L54">				Object fromProperty = PropertyUtils.getProperty(from, fieldName);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">				if (fromProperty == null) continue;</span>
+
+				// destでも取得してみる（例外起きるかどうかチェック）．
+				try {
+<span class="fc" id="L59">					PropertyUtils.getProperty(dest, fieldName);</span>
+<span class="nc" id="L60">				} catch (NoSuchMethodException e) {</span>
+					// fromにあってdestに対応するプロパティがない場合．無視して次のプロパティを処理する．
+<span class="nc" id="L62">					continue;</span>
+<span class="fc" id="L63">				}</span>
+
+				// 継承先を全て探索
+<span class="fc bfc" id="L66" title="All 2 branches covered.">				for (Class&lt;?&gt; fromImplementedInterface : fromProperty.getClass().getInterfaces()) {</span>
+
+					// List を発見した場合
+<span class="fc bfc" id="L69" title="All 2 branches covered.">					if (fromImplementedInterface == java.util.List.class) {</span>
+						// dest側のgenericsのClassオブジェクトを取得
+<span class="fc" id="L71">						ParameterizedType ptype = (ParameterizedType)dest.getClass().getDeclaredField(fieldName).getGenericType();</span>
+<span class="fc" id="L72">						Class&lt;?&gt; cls = (Class&lt;?&gt;)ptype.getActualTypeArguments()[0];</span>
+
+<span class="fc" id="L74">						List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+						// 全てのリストを変換
+<span class="fc bfc" id="L76" title="All 2 branches covered.">						for (Object obj : (List&lt;Object&gt;)fromProperty) {</span>
+<span class="fc" id="L77">							Object o = cls.newInstance();</span>
+<span class="fc" id="L78">							convert(o, obj);</span>
+<span class="fc" id="L79">							list.add(o);</span>
+<span class="fc" id="L80">						}</span>
+<span class="fc" id="L81">						fromProperty = list;</span>
+
+						// 他の継承クラスは無視
+<span class="fc" id="L84">						break;</span>
+					}
+				}
+				// メイン．属性を貼る
+<span class="fc" id="L88">				PropertyUtils.setProperty(dest, fieldName, fromProperty);</span>
+<span class="nc" id="L89">			} catch (IllegalArgumentException | NoSuchMethodException e) {</span>
+				// fromにはあってdest側に対応するプロパティが見つからない場合はエラーを出力してから継続
+<span class="nc" id="L91">				logger.warning(&quot;対応するプロパティが見つからない，あるいは呼び出すことができませんが処理を引き続き実行します．\n念のため差し替える2つのオブジェクト（destとfrom）のプロパティが一致しているか確認してください．&quot;);</span>
+<span class="nc" id="L92">				e.printStackTrace();</span>
+<span class="nc" id="L93">				continue;</span>
+<span class="nc" id="L94">			} catch (IllegalAccessException | NoSuchFieldException | SecurityException | InvocationTargetException | InstantiationException e) {</span>
+				// 基本発生しない
+<span class="nc" id="L96">				System.err.println(&quot;予期せぬ例外が発生しました．&quot;);</span>
+<span class="nc" id="L97">				throw new RuntimeException(e);</span>
+<span class="fc" id="L98">			}</span>
+		}
+<span class="fc" id="L100">	}</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

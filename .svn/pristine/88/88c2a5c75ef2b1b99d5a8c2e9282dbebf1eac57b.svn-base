@@ -1,0 +1,96 @@
+package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.EventNotFoundException;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.TicketModel;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.EventDetailSearchResultEntity;
+import jp.enpit.cloud.eventspiral.view.IdentifyingEventForm;
+import jp.enpit.cloud.eventspiral.view.SearchingForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出されるイベント詳細情報表示処理のコントローラークラス
+ *
+ * @author s-egawa(2014001)
+ */
+public class DisplayEventDetailController {
+	/**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+    public DisplayEventDetailController() {
+        logger = Logger.getLogger(getClass().getName());
+    }
+
+    /**
+     * DWRより呼び出されるイベント詳細表示のコントローラーメソッド.
+     *
+
+残席数をEventDetailEntityオブジェクトに設定し，EventDetailEntityオブジェクトに登録する．
+SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．
+ここでNotLoggedInExceptionが発生した場合、EventDetailEntityオブジェクトをvalidate後にreturnして終了．
+TicketModelクラスのgetBoughtSeatCategories()を呼び出し、座席種別ごとのチケット購入数を取得する．
+チケット購入数をEventDetailEntityオブジェクトに設定する．
+EventDetailEntityオブジェクトをバリデートする．
+EventDetailEntityオブジェクト(イベント詳細情報)を返す．
+TEMFatalExceptionが発生した場合：
+発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+EventNotFoundExceptionが発生した場合：
+発生した例外と「指定されたイベントが存在しません」というメッセージをTEMViewExceptionにラップして投げる．
+     * @param form IdentifyingEventFormオブジェクト
+     * @return イベント詳細情報
+     * @throws TEMViewException - TEMFatalException,EventNotFoundExceptionが発生した場合．
+     */
+    public EventDetailEntity execute(IdentifyingEventForm form) throws TEMViewException {
+
+        logger.info("DisplayEventDetailController.execute");
+        //formデータをバリデートする．
+        form.validate();
+
+        try{
+        	//EventModelクラスのgetEvent()を呼び出し、イベント情報を取得し，EventDetailEntityオブジェクトに設定する
+            EventModel eventModel = new EventModel();
+            EventDetailEntity entity = new EventDetailEntity();
+            Event event = eventModel.getEvent(form.getEventId());
+
+            entity.setEventId(event.getEventId());
+            entity.setEventName(event.getEventName());
+            entity.setEventDate(event.getEventDate());
+            entity.setTicketStartDate(event.getTicketStartDate());
+            entity.setDescription(event.getDescription());
+            entity.setPromoterId(event.getPromoterId());
+
+            //TicketModelクラスのgetRemainSeatCategories()を呼び出し、座席種別ごとの残席数を取得する．
+            //TicketModel ticketModel = new TicketModel();
+
+            return entity;
+
+        } catch (TEMFatalException e){
+            String message = "システムエラーが発生しました。管理者に連絡してください。";
+            logger.severe(message);
+            throw new TEMViewException(message, e);
+        } catch (EventNotFoundException e) {
+            String message = "指定されたイベントが存在しません";
+            logger.severe(message);
+            throw new TEMViewException(message, e);
+        }
+
+    }
+
+}

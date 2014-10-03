@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DisplayEventListController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">DisplayEventListController.java</span></div><h1>DisplayEventListController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.EventDetailSearchResultEntity;
+import jp.enpit.cloud.eventspiral.view.SearchingForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出されるイベント一覧表示処理のコントローラークラス
+ *
+ * @author 2014003
+ */
+public class DisplayEventListController {
+
+	/**
+	 * Loggerオブジェクト
+	 */
+	private Logger logger;
+
+	/*
+	 * Loggerフィールドにオブジェクトを設定する．
+	 */
+<span class="fc" id="L31">	public DisplayEventListController() {</span>
+<span class="fc" id="L32">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L33">	}</span>
+
+	/*
+	 * DWRより呼び出されるイベント一覧表示のコントローラーメソッド.
+	 * &lt;ol&gt;
+	 * 	&lt;li&gt;formデータをバリデートする．（formオブジェクトのvalidate()を呼び出す）
+	 * 	&lt;li&gt;EventModelクラスのgetFutureEventTotalCount()を呼び出し、未来のイベント情報の総数を取得し，int型変数に代入する．
+	 * 	&lt;li&gt;EventModelクラスのgetFutureEvents()を呼び出し（引数はformオブジェクトのstartIndexとlength）、未来のイベント情報の一覧を取得する(List型の変数にgetFutureEventsの返り値を代入する)．
+	 * 	&lt;li&gt;Listを初期化し，Listの各要素を代入するEventDetailSearchResultEntityクラスを生成し、イベント情報の一覧(List)と総数を登録する．
+	 * 	&lt;li&gt;EventDetailSearchResultEntityオブジェクトをバリデートする．
+	 * 	&lt;li&gt;EventDetailSearchResultEntityオブジェクト(イベント情報の一覧)を返す．
+	 * 	&lt;li&gt;TEMFatalExceptionが発生した場合：
+	 * 		&lt;ol&gt;
+	 * 			&lt;li&gt;発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+	 *
+	 * @param form SearchingForm
+	 *
+	 * @return イベント情報の一覧
+	 *
+	 * @throws TEMViewException TEMFatalExceptionが発生した場合．
+	 */
+	public EventDetailSearchResultEntity execute(SearchingForm form)
+			throws TEMViewException {
+
+<span class="fc" id="L57">		logger.info(&quot;DisplayEventListController.execute&quot;);</span>
+
+		try {
+
+<span class="fc" id="L61">			form.validate();</span>
+
+<span class="fc" id="L63">			EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L64">			int futureEventTotalCount = eventModel.getFutureEventTotalCount();</span>
+<span class="fc" id="L65">			List&lt;Event&gt; futureEventsList = eventModel.getFutureEvents(</span>
+					form.getStartIndex(), form.getLength());
+
+<span class="fc" id="L68">			List&lt;EventDetailEntity&gt; eventDetailEntities = new ArrayList&lt;EventDetailEntity&gt;(</span>
+					futureEventTotalCount);
+
+<span class="fc" id="L71">			Iterator&lt;Event&gt; iEvent = futureEventsList.iterator();</span>
+
+<span class="fc bfc" id="L73" title="All 2 branches covered.">			while (iEvent.hasNext()) {</span>
+<span class="fc" id="L74">				Event eve = iEvent.next();</span>
+<span class="fc" id="L75">				EventDetailEntity ede = new EventDetailEntity();</span>
+
+<span class="fc" id="L77">				ede.setDescription(eve.getDescription());</span>
+<span class="fc" id="L78">				ede.setEventDate(eve.getEventDate());</span>
+<span class="fc" id="L79">				ede.setEventId(eve.getEventId());</span>
+<span class="fc" id="L80">				ede.setEventName(eve.getEventName());</span>
+<span class="fc" id="L81">				ede.setTicketStartDate(eve.getTicketStartDate());</span>
+
+<span class="fc" id="L83">				eventDetailEntities.add(ede);</span>
+<span class="fc" id="L84">			}</span>
+
+<span class="fc" id="L86">			EventDetailSearchResultEntity eventDetailSearchResultEntity = new EventDetailSearchResultEntity();</span>
+<span class="fc" id="L87">			eventDetailSearchResultEntity.setList(eventDetailEntities);</span>
+<span class="fc" id="L88">			eventDetailSearchResultEntity.setTotalCount(futureEventTotalCount);</span>
+<span class="fc" id="L89">			eventDetailSearchResultEntity.validate();</span>
+
+<span class="fc" id="L91">			return eventDetailSearchResultEntity;</span>
+
+<span class="nc" id="L93">		} catch (TEMFatalException e) {</span>
+<span class="nc" id="L94">			String message = &quot;システムエラーが発生しました。管理者に連絡してください。&quot;;</span>
+<span class="nc" id="L95">			logger.severe(message);</span>
+<span class="nc" id="L96">			throw new TEMViewException(message);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

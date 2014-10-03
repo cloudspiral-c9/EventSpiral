@@ -1,0 +1,43 @@
+新しいほうを上に書くこと
+
+--------------------
+[レビュー日時] 2014/8/20 12:46
+[レビュー者] 江川 (2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+RegisterSeatCategoryControllerクラス
+
+[チェックリスト項目]
+SA-1 NG
+SA-2 OK
+SB-1,2 OK
+SC-1,2,3 OK
+SD-1 OK
+SD-2 OK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 NG
+TA-5 NG
+testExecute02の
+assertEquals(0, actual.getTotalCount());
+と
+assertEquals(0, events.size());
+を
+assertEquals(1, actual.getTotalCount());
+と
+assertEquals(1, events.size());
+に変更してください
+
+testExecute04の
+
+assertEquals(6, actual.getTotalCount());
+と
+assertEquals(6, events.size());
+を
+assertEquals(8, actual.getTotalCount());
+と
+assertEquals(8, events.size());
+に変更してください

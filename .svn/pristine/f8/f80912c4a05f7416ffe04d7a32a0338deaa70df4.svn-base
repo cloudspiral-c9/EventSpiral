@@ -1,0 +1,300 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Test;
+
+/**
+ * イベント詳細を表示するときのエンティティクラス．
+ *
+ *
+ * @author 2014003
+ *
+ */
+public class EventDetailEntityTest {
+
+	/**
+	 * 正常系（6文字） 対象: {@link EventDetailEntity#setDescription()} <br/>
+	 * 条件: 事前状態としてdescriptionに6字の文字列("desc01")をセット. <br/>
+	 * 期待する結果: 戻り値が<code>desc01</code>. <br/>
+	 * */
+	@Test
+	public void testSetDescription01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setDescription("desc01");
+		String actual = eventDetailEntity.getDescription();
+		String expected = "desc01";
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（0文字） 対象: {@link EventDetailEntity#setDescription()} <br/>
+	 * 条件: 事前状態としてdescriptionに空文字("")をセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetDescription02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setDescription("");
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 異常系（null） 対象: {@link EventDetailEntity#setDescription()} <br/>
+	 * 条件: 事前状態としてdescriptionにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetDescription03() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setDescription(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系 対象: {@link EventDetailEntity#setEventDate()} <br/>
+	 * 条件: 事前状態としてeventDateにDate型(1970/1/1/ 0:00:00)をセット. <br/>
+	 * 期待する結果: 戻り値が<code>1970/1/1/ 0:00:00</code>. <br/>
+	 * */
+	@Test
+	public void testSetEventDate01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventDate(new Date(0));
+		Date actual = eventDetailEntity.getEventDate();
+		Date expected = new Date(0);
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（null) 対象: {@link EventDetailEntity#setEventDate()} <br/>
+	 * 条件: 事前状態としてeventDateにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testEventDate02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventDate(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系（4文字） 対象: {@link EventDetailEntity#setEventId()} <br/>
+	 * 条件: 事前状態としてeventIdに4字の文字列("id01")をセット. <br/>
+	 * 期待する結果: 戻り値が<code>id01</code>. <br/>
+	 * */
+	@Test
+	public void testSetEventId01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventId("id01");
+		String actual = eventDetailEntity.getEventId();
+		String expected = "id01";
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（0文字） 対象: {@link EventDetailEntity#setEventId()} <br/>
+	 * 条件: 事前状態としてeventIdに空文字("")をセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetEventId02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventId("");
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 異常系（null） 対象: {@link EventDetailEntity#setEventId()} <br/>
+	 * 条件: 事前状態としてeventIdにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetEventId03() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventId(null);
+		eventDetailEntity.validate();
+	}
+
+
+	/**
+	 * 正常系（6文字） 対象: {@link EventDetailEntity#setEventName()} <br/>
+	 * 条件: 事前状態としてeventNameに6字の文字列("name01")をセット. <br/>
+	 * 期待する結果: 戻り値が<code>name01</code>. <br/>
+	 * */
+	@Test
+	public void testSetEventName01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventName("name01");
+		String actual = eventDetailEntity.getEventName();
+		String expected = "name01";
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（0文字） 対象: {@link EventDetailEntity#setEventName()} <br/>
+	 * 条件: 事前状態としてeventNameに空文字("")をセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetEventName02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventName("");
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 異常系（null） 対象: {@link EventDetailEntity#setEventName()} <br/>
+	 * 条件: 事前状態としてeventNameにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetEventName03() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setEventName(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系 対象: {@link EventDetailEntity#setTicketStartDate()} <br/>
+	 * 条件: 事前状態としてticketStartDateにDate型(1970/1/1/ 0:00:00)をセット. <br/>
+	 * 期待する結果: 戻り値が<code>1970/1/1/ 0:00:00</code>. <br/>
+	 * */
+	@Test
+	public void testSetTicketStartDate01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setTicketStartDate(new Date(0));
+		Date actual = eventDetailEntity.getTicketStartDate();
+		Date expected = new Date(0);
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（null) 対象: {@link EventDetailEntity#setTicketStartDate()} <br/>
+	 * 条件: 事前状態としてticketStartDateにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testTicketStartDate02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setTicketStartDate(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系（6文字） 対象: {@link EventDetailEntity#setPromoterId()} <br/>
+	 * 条件: 事前状態としてPromoterIdに6字の文字列("desc01")をセット. <br/>
+	 * 期待する結果: 戻り値が<code>desc01</code>. <br/>
+	 * */
+	@Test
+	public void testSetPromoterId01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setPromoterId("desc01");
+		String actual = eventDetailEntity.getPromoterId();
+		String expected = "desc01";
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（0文字） 対象: {@link EventDetailEntity#setPromoterId()} <br/>
+	 * 条件: 事前状態としてPromoterIdに空文字("")をセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetPromoterId02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setPromoterId("");
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 異常系（null） 対象: {@link EventDetailEntity#setPromoterId()} <br/>
+	 * 条件: 事前状態としてPromoterIdにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testSetPromoterId03() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setPromoterId(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系 対象: {@link EventDetailEntity#setRemainSeats()} <br/>
+	 * 条件: 事前状態としてRemainSeatsにnew ArrayList<SeatCategoryEntity>をセット. <br/>
+	 * 期待する結果: 戻り値がnew ArrayList<SeatCategoryEntity>. <br/>
+	 * */
+	@Test
+	public void testSetRemainSeats01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setRemainSeats(new ArrayList<SeatCategoryEntity>());
+		List<SeatCategoryEntity> actual = eventDetailEntity.getRemainSeats();
+		List<SeatCategoryEntity> expected = new ArrayList<SeatCategoryEntity>();
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（null) 対象: {@link EventDetailEntity#setRemainSeats()} <br/>
+	 * 条件: 事前状態としてRemainSeatsにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testRemainSeats02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setRemainSeats(null);
+		eventDetailEntity.validate();
+	}
+
+	/**
+	 * 正常系 対象: {@link EventDetailEntity#setTotalSeats()} <br/>
+	 * 条件: 事前状態としてTotalSeatsにnew ArrayList<SeatCategoryEntity>をセット. <br/>
+	 * 期待する結果: 戻り値がnew ArrayList<SeatCategoryEntity>. <br/>
+	 * */
+	@Test
+	public void testSetTotalSeats01() {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setTotalSeats(new ArrayList<SeatCategoryEntity>());
+		List<SeatCategoryEntity> actual = eventDetailEntity.getTotalSeats();
+		List<SeatCategoryEntity> expected = new ArrayList<SeatCategoryEntity>();
+		assertEquals(expected, actual);
+	}
+
+	/**
+	 * 異常系（null) 対象: {@link EventDetailEntity#setTotalSeats()} <br/>
+	 * 条件: 事前状態としてTotalSeatsにnullをセット. <br/>
+	 * 期待する結果: <code>TEMValidationException</code>を投げる. <br/>
+	 *
+	 * @throws TEMValidationException
+	 * */
+	@Test(expected = TEMValidationException.class)
+	public void testTotalSeats02() throws TEMValidationException {
+		EventDetailEntity eventDetailEntity = new EventDetailEntity();
+		eventDetailEntity.setTotalSeats(null);
+		eventDetailEntity.validate();
+	}
+}

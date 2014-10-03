@@ -1,0 +1,34 @@
+.annotation {
+	font-size: 90%;
+	color: gray;
+}
+
+.error {
+	color: red;
+}
+
+.msg {
+	color: blue;
+}
+
+.uid {
+	color: green;
+	font-weight: bold;
+}
+
+.date {
+	text-align: right;
+}
+
+.number {
+	text-align: right;
+}
+
+#event_tab td, #ticket_tab td, #seat_tab td {
+	border: solid 1px #ddd;
+	padding: 2px;
+}
+
+#nav_wrapper {
+	margin-top: 20px;
+}

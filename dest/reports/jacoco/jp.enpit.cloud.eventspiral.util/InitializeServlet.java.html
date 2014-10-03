@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>InitializeServlet.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.util</a> &gt; <span class="el_source">InitializeServlet.java</span></div><h1>InitializeServlet.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import javax.servlet.GenericServlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+<span class="nc" id="L13">public class InitializeServlet extends GenericServlet {</span>
+    private static final long serialVersionUID = -7714516128546636639L;
+
+    /**
+     * TEM のロード時に一度だけ呼び出される． 
+     * TEMアプリケーションの初期設定を行いたい場合は，ここに追記していく．
+     */
+    public void init(ServletConfig config) {
+<span class="nc" id="L21">        initialLogging();</span>
+<span class="nc" id="L22">    }</span>
+
+    private void initialLogging() {
+<span class="nc" id="L25">        LogManager manager = LogManager.getLogManager();</span>
+<span class="nc" id="L26">        Logger logger = Logger.getLogger(&quot;jp.ac.osaka.spiral.tem&quot;);</span>
+
+<span class="nc" id="L28">        try (InputStream in = getClass().getResourceAsStream(&quot;/logging.properties&quot;)) {</span>
+<span class="nc" id="L29">            manager.readConfiguration(in);</span>
+
+<span class="nc" id="L31">            logger.info(&quot;DONE: logging initialization&quot;);</span>
+<span class="nc bnc" id="L32" title="All 8 branches missed.">        } catch (IOException e) {</span>
+<span class="nc" id="L33">            logger.warning(&quot;I/O error in reading logging property&quot;);</span>
+<span class="nc" id="L34">        }</span>
+<span class="nc" id="L35">    }</span>
+
+    @Override
+    public void service(ServletRequest request, ServletResponse response) {
+        // do nothing
+<span class="nc" id="L40">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

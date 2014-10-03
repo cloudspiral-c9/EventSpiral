@@ -1,0 +1,19 @@
+package jp.enpit.cloud.eventspiral.integrationtesting;
+
+import jp.enpit.cloud.eventspiral.testutil.AccountInitializer;
+import jp.enpit.cloud.eventspiral.testutil.EventInitializer;
+import jp.enpit.cloud.eventspiral.testutil.EventInitializer2;
+import jp.enpit.cloud.eventspiral.testutil.TicketInitializer;
+
+public class UCDisplayEventDetailInit {
+
+	/**
+	 * ステージング環境のDBを初期化する．各班のステージング環境に合わせてポート番号を修正すること．
+	 */
+	public static void main(String[] args) throws Exception {
+		AccountInitializer.initDBForIntegrationTestUCDisplayEventDetail();
+		EventInitializer.initDBForIntegrationTestUCDisplayEventDetail();
+		TicketInitializer.initDBForIntegrationTestUCDisplayEventDetail();
+	}
+
+}

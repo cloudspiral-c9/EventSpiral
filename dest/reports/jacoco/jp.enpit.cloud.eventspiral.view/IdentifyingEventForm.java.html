@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IdentifyingEventForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">IdentifyingEventForm.java</span></div><h1>IdentifyingEventForm.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import javax.validation.constraints.NotNull;
+
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ *
+ * イベントを削除するときのフォームクラス
+ *
+ * @author 2014003
+ *
+ */
+public class IdentifyingEventForm extends AbstractForm{
+
+	/**
+     * イベントID。チェック項目は以下の通り。
+     * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない&lt;/li&gt;
+	 *   &lt;li&gt;空文字ではない&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+	java.lang.String eventId;
+
+    /**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L32">	public IdentifyingEventForm(){</span>
+<span class="fc" id="L33">	}</span>
+
+	/**
+     * イベントIDを取得する
+     * @return イベントID
+     */
+	public java.lang.String getEventId() {
+<span class="fc" id="L40">		return eventId;</span>
+	}
+
+	/**
+     * eventIdをDBUtilsのsanitizeを利用してサニタイズしてから、フィールドを取得する。
+     * @param eventId イベントID
+     */
+	public void setEventId(java.lang.String eventId) {
+<span class="fc" id="L48">		this.eventId = DBUtils.sanitize(eventId);</span>
+<span class="fc" id="L49">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

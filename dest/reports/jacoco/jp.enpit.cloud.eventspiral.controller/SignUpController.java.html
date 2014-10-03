@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SignUpController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">SignUpController.java</span></div><h1>SignUpController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.AccountAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.AccountModel;
+import jp.enpit.cloud.eventspiral.view.IdentifyingAccountForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+/**
+ * DWRから呼び出されるユーザアカウント登録処理のコントローラークラス
+*/
+public class SignUpController{
+	/**
+     * Loggerオブジェクト
+	 */
+	private Logger logger;
+	/**
+     * Loggerフィールドにオブジェクトを設定する．
+	 */
+<span class="fc" id="L21">	public SignUpController(){</span>
+<span class="fc" id="L22">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L23">	}</span>
+
+	/**
+     * DWRより呼び出される一般ユーザ登録処理のコントローラーメソッド.
+	 * &lt;ol&gt;
+     * &lt;li&gt;formデータをバリデートする．&lt;/li&gt;
+     * &lt;li&gt;AccountModelクラスのregisterUser()を呼び出し、アカウント情報をデータベースに登録する。&lt;/li&gt;
+
+     * &lt;li&gt;&lt;tt&gt;TEMFatalException&lt;/tt&gt;が発生した場合：
+     *   &lt;ol&gt;
+     *     &lt;li&gt;発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+     *   &lt;/ol&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;&lt;tt&gt;AccountAlreadyRegisteredException&lt;/tt&gt;が発生した場合：
+     *   &lt;ol&gt;
+     *     &lt;li&gt;発生した例外と「指定されたユーザIDは既に存在します」というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+     *   &lt;/ol&gt;
+     * &lt;/li&gt;
+
+	 * &lt;/ol&gt;
+	 * @param form 登録するアカウント情報
+	 * @throws TEMViewException TEMFatalException,AccountAlreadyRegisteredExceptionが発生した場合．
+	 */
+	public void execute (IdentifyingAccountForm form) throws TEMViewException {
+<span class="fc" id="L47">		logger.info(&quot;SignUpController.execute&quot;);</span>
+<span class="fc" id="L48">		form.validate();</span>
+
+		try{
+<span class="fc" id="L51">			AccountModel dao = new AccountModel();</span>
+
+<span class="fc" id="L53">			dao.registerUser(form.getUserId(), form.getPass());</span>
+			
+			/*BooleanEntity b = new BooleanEntity(true);;
+			b.validate();
+			return b;*/
+<span class="nc" id="L58">		} catch (TEMFatalException e){</span>
+<span class="nc" id="L59">			throw new TEMViewException(&quot;システムエラーが発生しました．管理者に連絡して下さい&quot;, e);</span>
+<span class="fc" id="L60">		} catch (AccountAlreadyRegisteredException e){</span>
+<span class="fc" id="L61">			throw new TEMViewException(&quot;指定されたユーザIDは既に存在します&quot;, e);</span>
+<span class="fc" id="L62">		}</span>
+<span class="fc" id="L63">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

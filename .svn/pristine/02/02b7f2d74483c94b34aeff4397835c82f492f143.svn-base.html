@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>サインアップ | TEM</title>
+	<link rel="stylesheet" type="text/css" href="css/default.css" />
+
+	<script type='text/javascript' src='dwr/engine.js'></script>
+	<script type='text/javascript' src='dwr/interface/SignUpController.js'></script>
+
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src='js/jquery.serialize.js'></script>
+	<script type="text/javascript" src="js/tem-header.js"></script>
+
+	<script type='text/javascript'>
+
+	/**
+	 * @処理概要
+	 * ready関数(画面が読み込まれた直後に自動的に呼ばれる)
+	 * 画面初期化
+	 *
+	 * @パラメータ
+	 * なし
+	 *
+	 * @処理フロー
+	 * - tem-header.jsのinitHeader()を呼ぶ
+	 *
+	 * @必要な知識
+	 *
+	 * @開発させるか
+	 * YES
+	 */
+	$(function() {
+		initHeader();
+	});
+
+	/**
+	 * @処理概要
+	 * アカウント作成処理
+	 *
+	 * @パラメータ
+	 * なし
+	 *
+	 * @処理フロー
+	 * - #signup_formに入力された値をjsonオブジェクトに変換する(tem-utils.jsのserializeJson関数を利用して良い)
+	 * - jsonオブジェクトに変換された#signup_formのpassとpassVerifyの値が一致するかを比較し，
+	 * - 一致しなければ#error_msgに"パスワードが一致しません"と表示し，returnする(updateErrorMsgを利用してもしなくても良い)．
+	 * - SignUpController.executeを呼び出す
+	 * - 引数としてjsonオブジェクトに変換された#signup_formを取る
+	 * - callbackに指定される匿名関数は下記を実装していること
+	 * - 	tem-utils.jsのlogin関数を呼び出す（引数はexecuteの引数として与えられたjsonのuserIdとpass）
+	 * - exceptionHandlerにはupdateErrorMsgを指定すること
+	 * @必要な知識
+	 * - tem-utils.jsのlogin, serializeJsonの使い方
+	 *
+	 * @開発させるか
+	 * YES
+	 */
+	function signUp() {
+		// form オブジェクトを作成
+		var form = $('#signup_form').serializeJson();
+
+		if (form.pass != form.passVerify) {
+			updateErrorMsg("パスワードが一致しません", null);
+			return;
+		}
+
+		// アカウントを作成
+		SignUpController.execute(form, {
+			callback: function() {
+				login(form.userId, form.pass);
+			},
+			exceptionHandler: updateErrorMsg
+		});
+	}
+
+	/**
+	 * @処理概要
+	 * エラーメッセージの表示
+	 *
+	 * @パラメータ
+	 * msg - 例外文字列
+	 * exc - 例外オブジェクト
+	 * @処理フロー
+	 * - #error_msgに例外文字列を表示する
+	 * @必要な知識
+	 * - jquery text()関数の使い方
+	 * - DWRの例外ハンドラの使い方
+	 * @開発させるか
+	 * YES
+	 */
+	function updateErrorMsg(msg, exc) {
+		$('#error_msg').text(msg);
+	}
+
+	</script>
+</head>
+
+<body>
+	<div id="header"></div>
+
+	<h2>新規アカウントの追加</h2>
+	<form id="signup_form">
+		<table>
+			<tr>
+				<td>ユーザID</td>
+				<td><input type="text" name="userId" /></td>
+			</tr>
+			<tr>
+				<td>パスワード</td>
+				<td><input type="password" name="pass" /></td>
+			</tr>
+			<tr>
+				<td>パスワードを再入力</td>
+				<td><input type="password" name="passVerify"/></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="button" value="登録" onclick="signUp()"/></td>
+			</tr>
+		</table>
+	</form>
+	<div id="error_msg" class="error"></div>
+</body>
+
+</html>

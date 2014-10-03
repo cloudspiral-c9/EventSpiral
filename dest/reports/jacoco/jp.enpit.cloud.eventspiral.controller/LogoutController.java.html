@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LogoutController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">LogoutController.java</span></div><h1>LogoutController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+/**
+ * DWRから呼び出されるログアウト処理のコントローラークラス
+*/
+public class LogoutController{
+	/**
+     * Loggerオブジェクト
+	 */
+	private Logger logger;
+	/**
+     * Loggerフィールドにオブジェクトを設定する．
+	 */
+<span class="fc" id="L19">	public LogoutController(){</span>
+<span class="fc" id="L20">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L21">	}</span>
+	/**
+     * DWRより呼び出されるログアウト処理のコントローラーメソッド.
+	 * &lt;ol&gt;
+     * &lt;li&gt;SessionクラスのdeleteSessionId()を呼び出し、現在のセッション情報を削除する。&lt;/li&gt;
+     * &lt;li&gt;&lt;tt&gt;TEMFatalException&lt;/tt&gt;が発生した場合：
+     *   &lt;ol&gt;
+     *     &lt;li&gt;発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージを&lt;tt&gt;TEMViewException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+     *   &lt;/ol&gt;
+     * &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @throws TEMViewException TEMFatalExceptionが発生した場合．
+	 */
+	public void execute() throws TEMViewException {
+<span class="fc" id="L35">		logger.info(&quot;LogoutController.execute&quot;);</span>
+		//validate();
+		
+		try{
+<span class="fc" id="L39">			Session session = new Session();</span>
+<span class="fc" id="L40">			session.deleteSessionId();</span>
+
+			
+			/*BooleanEntity b = new BooleanEntity(true);
+			b.validate();
+			return b;*/
+<span class="nc" id="L46">		} catch (TEMFatalException e){</span>
+<span class="nc" id="L47">			throw new TEMViewException(&quot;システムエラーが発生しました．管理者に連絡してください&quot;, e);</span>
+<span class="fc" id="L48">		}</span>
+<span class="fc" id="L49">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

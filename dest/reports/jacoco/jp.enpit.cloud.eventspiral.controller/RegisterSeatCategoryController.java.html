@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegisterSeatCategoryController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">RegisterSeatCategoryController.java</span></div><h1>RegisterSeatCategoryController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.OutOfDateException;
+import jp.enpit.cloud.eventspiral.model.SeatCategory;
+import jp.enpit.cloud.eventspiral.model.EventNotFoundException;
+import jp.enpit.cloud.eventspiral.model.SeatCategoryAlreadyRegisteredException;
+import jp.enpit.cloud.eventspiral.model.TicketModel;
+import jp.enpit.cloud.eventspiral.view.EventInfoEntity;
+import jp.enpit.cloud.eventspiral.view.RegisteringSeatCategoryForm;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出される座席情報登録処理のコントローラークラス
+ *
+ * @author 2014024
+ * @author 2014003
+ *
+ */
+public class RegisterSeatCategoryController {
+	/**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+<span class="fc" id="L37">    public RegisterSeatCategoryController() {</span>
+<span class="fc" id="L38">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * DWRより呼び出される座席種別登録処理のコントローラーメソッド
+     * &lt;ol&gt;
+     *  &lt;li&gt;formデータをバリデートする．&lt;/li&gt;
+     *  &lt;li&gt;SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．&lt;/li&gt;
+     *  &lt;li&gt;AccountクラスのisPromoter()を呼び出し、ユーザIDが興行主であるかチェックする．&lt;/li&gt;
+     *  &lt;li&gt;ユーザIDが興行主でない場合、「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．&lt;/li&gt;
+     *  &lt;li&gt;EventModelクラスのregisterSeatCategory()を呼び出し、データベースに座席情報を登録する．&lt;/li&gt;
+     *  &lt;li&gt;EventInfoEntityクラスを生成し、イベント情報を登録する．&lt;/li&gt;
+     *  &lt;li&gt;TicketModelクラスのgenerateTickets()を呼び出し、データベースに座席情報を登録する．&lt;/li&gt;
+     *  &lt;li&gt;TEMFatalExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;NotLoggedInExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「興行主アカウントでログインしてください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;EventNotFoundExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「指定されたイベントが存在しません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;OutOfDateExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「指定された座席種別は既に登録されています」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     * @param eForm 登録する座席情報
+     * @return
+     * @throws TEMViewException TEMFatalException
+     * @throws OutOfDateException
+     * @throws EventAlreadyRegisteredException
+     */
+    public void execute(RegisteringSeatCategoryForm form) throws TEMViewException, EventAlreadyRegisteredException, OutOfDateException{
+<span class="fc" id="L82">        logger.info(&quot;RegisterSeatCategoryController.execute&quot;);</span>
+<span class="fc" id="L83">        form.validate();</span>
+
+        try{
+<span class="fc" id="L86">            Session session = new Session();</span>
+<span class="fc" id="L87">            Account account = session.getCurrentAccount();</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if(!account.isPromoter()) {</span>
+<span class="fc" id="L90">                throw new TEMViewException(&quot;興行主アカウントでログインしてください&quot;);</span>
+            }
+
+
+<span class="fc" id="L94">            EventModel seat = new EventModel();</span>
+<span class="fc" id="L95">            SeatCategory seatCategory = seat.registerSeatCategory(form.getEventId(),</span>
+                                                      form.getSeatName(),
+                                                      form.getCount(),
+                                                      form.getFee()
+                                                      );
+
+<span class="fc" id="L101">            EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L102">            Event event = eventModel.getEvent(form.getEventId());</span>
+
+<span class="fc" id="L104">            EventInfoEntity eventInfoEntity = new EventInfoEntity();</span>
+
+<span class="fc" id="L106">            eventInfoEntity.setEventId(event.getEventId());</span>
+<span class="fc" id="L107">            eventInfoEntity.setEventName(event.getEventName());</span>
+<span class="fc" id="L108">            eventInfoEntity.setEventDate(event.getEventDate());</span>
+<span class="fc" id="L109">            eventInfoEntity.setTicketStartDate(event.getTicketStartDate());</span>
+<span class="fc" id="L110">            eventInfoEntity.setDescription(event.getDescription());</span>
+<span class="fc" id="L111">            eventInfoEntity.setPromoterId(account.getUserId());</span>
+<span class="fc" id="L112">            TicketModel ticketModel = new TicketModel();</span>
+<span class="fc" id="L113">            ticketModel.generateTickets(event,seatCategory);</span>
+
+
+<span class="nc" id="L116">        } catch (TEMFatalException e){</span>
+<span class="nc" id="L117">            throw new TEMViewException(&quot;システムエラーが発生しました．管理者に連絡して下さい&quot;, e);</span>
+<span class="fc" id="L118">        } catch (NotLoggedInException e) {</span>
+<span class="fc" id="L119">            throw new TEMViewException(&quot;興行主アカウントでログインしてください&quot;, e);</span>
+<span class="fc" id="L120">        } catch (EventNotFoundException e){</span>
+<span class="fc" id="L121">            throw new TEMViewException(&quot;指定されたイベントが存在しません &quot;, e);</span>
+<span class="fc" id="L122">        } catch (SeatCategoryAlreadyRegisteredException e) {</span>
+<span class="fc" id="L123">            throw new TEMViewException(&quot;指定された座席種別は既に登録されています&quot;, e);</span>
+<span class="fc" id="L124">        }</span>
+<span class="fc" id="L125">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

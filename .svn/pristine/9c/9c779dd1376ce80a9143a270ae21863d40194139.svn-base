@@ -1,0 +1,42 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
+public class SearchingForm extends AbstractForm{
+
+	@Min(value=0L)
+	private int startIndex;
+
+	@Min(value=10L)
+	@Max(value=100L)
+	private int length;
+
+	/**
+	 * デフォルトコンストラクタ
+	 */
+	public SearchingForm(){
+	}
+
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
+
+	public int getLength() {
+		return length;
+	}
+
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+
+
+}

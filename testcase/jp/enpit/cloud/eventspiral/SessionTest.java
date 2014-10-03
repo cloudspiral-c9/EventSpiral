@@ -1,0 +1,179 @@
+package jp.enpit.cloud.eventspiral;
+
+import static org.junit.Assert.*;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.testutil.AccountInitializer;
+
+import org.junit.Test;
+
+import com.mongodb.*;
+
+/**
+ * UC: ログインする <br/>
+ *   testRegisterSessionId01(): 正常系 <br/>
+ *   testRegisterSessionId02(): 存在しないユーザ <br/>
+ *   testDeleteSessionId01(): 正常系 <br/>
+ *   testGetCurrentAccount01(): ログインしているアカウントを取得 <br/>
+ *   testGetCurrentAccount02(): 誰もログインしていない <br/>
+ *
+ * @author y-takata
+ */
+public class SessionTest {
+
+	/**
+	 * セッションID登録成功 <br/>
+	 * 対象: {@link Session#registerSessionId} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録済みの一般ユーザを表すユーザID ("user1") <br/>
+	 * 期待する結果: 事後条件として，accountコレクションの上記ユーザIDに対する
+	 *      ドキュメントのsessionIdフィールドに，ローカルテスト用セッションID
+	 *      ("THIS_IS_A_TEST_SESSION_ID") が格納されている．<br/>
+	 */
+	@Test
+	public void testRegisterSessionId01() throws Exception {
+		// accountコレクションの初期化
+		AccountInitializer.initDB();
+
+		//SessionIDの登録
+		String userId = "user1";
+		Session sdao = new Session();
+		sdao.registerSessionId(userId);
+
+		//登録されているかDBで確認
+		MongoClient mongo = new MongoClient("localhost", 27017);
+		//MongoClient mongo = new MongoClient("133.1.236.131", 9271);
+		DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("account");
+		DBObject query = new BasicDBObject();
+		query.put("userId", userId);
+		query.put("sessionId", "THIS_IS_A_TEST_SESSION_ID");
+		DBObject result = coll.findOne(query);
+		assertNotNull(result);
+	}
+
+	/**
+	 * 失敗：存在しないユーザ <br/>
+	 * 対象: {@link Session#registerSessionId} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録されないユーザID ("userx") <br/>
+	 * 期待する結果: 事後条件として，accountコレクションにローカルテスト用
+	 *      セッションID ("THIS_IS_A_TEST_SESSION_ID") が格納されている
+	 *      ドキュメントが存在しない．<br/>
+	 */
+	@Test
+	public void testRegisterSessionId02() throws Exception {
+		// accountコレクションの初期化
+		AccountInitializer.initDB();
+
+		//SessionIDの登録
+		String userId = "userx";
+		Session sdao = new Session();
+		sdao.registerSessionId(userId);
+
+		//登録されていないことをDBで確認
+		MongoClient mongo = new MongoClient("localhost", 27017);
+		//MongoClient mongo = new MongoClient("133.1.236.131", 9271);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("account");
+		DBObject query = new BasicDBObject();
+		query.put("sessionId", "THIS_IS_A_TEST_SESSION_ID");
+		DBObject result = coll.findOne(query);
+		assertNull(result);
+	}
+
+	/**
+	 * セッションID削除成功 <br/>
+	 * 対象: {@link Session#deleteSessionId} <br/>
+	 * 条件: 事前条件として，{@link AccountInitializer#initDB} で初期化後のDBに，
+	 *      accountコレクションのユーザID "user1" に対する
+	 *      ドキュメントのsessionIdフィールドに，ローカルテスト用セッションID
+	 *      ("THIS_IS_A_TEST_SESSION_ID") が格納されている． <br/>
+	 * 期待する結果: 事後条件として，accountコレクションに，上記セッションIDを
+	 *      格納するドキュメントが存在しない．<br/>
+	 */
+	@Test
+	public void testDeleteSessionId01() throws Exception {
+		// accountコレクションの初期化
+		AccountInitializer.initDB();
+		//セッションIDを登録
+        MongoClient mongo = new MongoClient("localhost", 27017);
+		//MongoClient mongo = new MongoClient("133.1.236.131", 9271);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("account");
+		// DWRの発行するSessionIdの取得（のエミュレーション）
+		String sessionId = "THIS_IS_A_TEST_SESSION_ID";
+		String userId = "user1";
+		// 登録
+		DBObject query = new BasicDBObject();
+		query.put("userId", userId);
+		DBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("sessionId", sessionId));
+		coll.update(query, update);
+
+		//セッションIDの削除
+		Session sdao = new Session();
+		sdao.deleteSessionId();
+
+		//消えているかDBで確認
+		query = new BasicDBObject();
+		query.put("sessionId", sessionId);
+		DBObject result = coll.findOne(query);
+		assertNull(result);
+	}
+
+	/**
+	 * ログインしているアカウントを取得<br/>
+	 * 対象: {@link Session#getCurrentAccount} <br/>
+	 * 条件: 事前条件として，{@link AccountInitializer#initDB} で初期化後のDBに，
+	 *      accountコレクションのユーザID "user1" に対する
+	 *      ドキュメントのsessionIdフィールドに，ローカルテスト用セッションID
+	 *      ("THIS_IS_A_TEST_SESSION_ID") が格納されている． <br/>
+	 * 期待する結果: 戻り値が，userIdが "user1" である{@link Account}オブジェクト．<br/>
+	 */
+	@Test
+	public void testGetCurrentAccount01() throws Exception {
+		// accountコレクションの初期化
+		AccountInitializer.initDB();
+
+		//セッションIDを登録
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        //MongoClient mongo = new MongoClient("133.1.236.131", 9271);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("account");
+		// DWRの発行するSessionIdの取得（のエミュレーション）
+		String sessionId = "THIS_IS_A_TEST_SESSION_ID";
+		String userId = "user1";
+		// 登録
+		DBObject query = new BasicDBObject();
+		query.put("userId", userId);
+		DBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("sessionId", sessionId));
+		coll.update(query, update);
+
+		// ログインしているアカウントを取得
+		Session sdao = new Session();
+		Account actual = sdao.getCurrentAccount();
+
+		assertEquals(userId,    actual.getUserId());
+		assertEquals("pass1",   actual.getPass());
+		assertEquals("user",    actual.getRole());
+		assertEquals(sessionId, actual.getSessionId());
+	}
+
+	/**
+	 * 誰もログインしていない<br/>
+	 * 対象: {@link Session#getCurrentAccount} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．<br/>
+	 * 期待する結果: {@link NotLoggedInException}が発生．<br/>
+	 */
+	@Test(expected = NotLoggedInException.class)
+	public void testGetCurrentAccount02() throws Exception {
+		// accountコレクションの初期化
+		AccountInitializer.initDB();
+
+		// ログインしているアカウントを取得
+		Session sdao = new Session();
+		sdao.getCurrentAccount();
+	}
+}

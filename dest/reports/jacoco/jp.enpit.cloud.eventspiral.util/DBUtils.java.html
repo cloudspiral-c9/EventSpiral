@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DBUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.util</a> &gt; <span class="el_source">DBUtils.java</span></div><h1>DBUtils.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.util;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import org.apache.commons.beanutils.PropertyUtils;
+
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
+
+
+/**
+ * Mongodbを利用するためのシングルトンUtilityクラス
+ * @author shinsuke-m
+ *
+ */
+public class DBUtils {
+	private static Mongo m;
+	private static DB db;
+	private static final String dbName = &quot;tem&quot;;
+	private static Logger logger;
+
+<span class="fc" id="L33">	private static DBUtils singleton = new DBUtils();</span>
+	/**
+	 * シングルトンインスタンスの取得．
+	 * @return シングルトンインスタンス
+	 */
+	public static DBUtils getInstance() {
+<span class="fc" id="L39">		return singleton;</span>
+	}
+<span class="fc" id="L41">	private DBUtils() {</span>
+		try {
+<span class="fc" id="L43">			m = new MongoClient(&quot;localhost&quot;, 27017);</span>
+//			m = new MongoClient(&quot;133.1.236.131&quot;, 9271);
+<span class="fc" id="L45">			db = m.getDB(dbName);</span>
+<span class="fc" id="L46">			logger = Logger.getLogger(DBUtils.class.getName());</span>
+<span class="nc" id="L47">		} catch (UnknownHostException | MongoException e) {</span>
+			// TODO 自動生成された catch ブロック
+			// どうすんだろこれ
+<span class="nc" id="L50">			e.printStackTrace();</span>
+<span class="fc" id="L51">		}</span>
+<span class="fc" id="L52">	}</span>
+
+	/**
+	 * DBコネクションの取得．
+	 * @return DBコネクションオブジェクト
+	 */
+	public DB getDb() {
+<span class="fc" id="L59">		return db;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * HTML特殊文字のサニタイジング．
+	 * ユーザが入力した文字列のうち，セキュリティ上危険な特殊タグ文字を全て置換する．
+	 * 基本的に String に対する setter の全てで呼び出すこと．&lt;br&gt;
+	 * ※ユーザが入力した &amp; や &lt;&gt; などの特殊文字をそのまま利用すると，
+	 * DBへの命令を直接埋め込まれる危険性がある（XSS，SQLインジェクション）．
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用例：
+	 *   public void setMessage(String message) {
+	 *     this.message = DBUtils.getInstance().sanitize(message);
+	 *
+	 *     // 直接代入しないこと
+	 *     // this.message = message;
+	 *   }
+	 * &lt;/pre&gt;
+	 *
+	 * @param str サニタイズ対象の文字列
+	 * @return サニタイズ済み文字列
+	 */
+	public static String sanitize(String str) {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		if (str == null) {</span>
+<span class="fc" id="L86">			return &quot;&quot;;</span>
+		}
+<span class="fc" id="L88">		str = str.replaceAll(&quot;&amp;&quot; , &quot;&amp;amp;&quot; );</span>
+<span class="fc" id="L89">		str = str.replaceAll(&quot;&lt;&quot; , &quot;&amp;lt;&quot;  );</span>
+<span class="fc" id="L90">		str = str.replaceAll(&quot;&gt;&quot; , &quot;&amp;gt;&quot;  );</span>
+<span class="fc" id="L91">		str = str.replaceAll(&quot;\&quot;&quot;, &quot;&amp;quot;&quot;);</span>
+<span class="fc" id="L92">		str = str.replaceAll(&quot;'&quot; , &quot;&amp;#39;&quot; );</span>
+<span class="fc" id="L93">		return str;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * DBObject → Objectの変換．
+	 * MongoDBから取得したDBObjectのプロパティを，対応するObjectの属性に移し替える．
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用手順：
+	 *   1. DBObjectをMongoDBから取り出す．
+	 *   2. 対応するObjectのインスタンス（空）を作る．
+	 *   3. 本メソッドを呼び出す．
+	 * &lt;/pre&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用例：
+	 *   DBCollection coll = DBUtils.getInstance().getDb().getCollection(&quot;event&quot;);
+	 *   DBObject object = coll.findOne(query);
+	 *   Event event = new Event();
+	 *   DBUtils.attachProperties(event, object);
+	 * &lt;/pre&gt;
+	 *
+	 * @param dest 変換先のObject
+	 * @param from 変換元のDBObject
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static void attachProperties(Object dest, DBObject from){
+<span class="fc" id="L122">		ArrayList&lt;String&gt; mismatches = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		for (String fieldName : from.keySet()) {</span>
+			try {
+				// Mongo固有のフィールド名を無視する．
+<span class="fc bfc" id="L127" title="All 4 branches covered.">				if (fieldName.startsWith(&quot;_&quot;) || fieldName.startsWith(&quot;$&quot;)) continue;</span>
+
+<span class="fc" id="L129">				Object fromProperty = from.get(fieldName);</span>
+
+				// ネストオブジェクトのインタフェース全てを再起探索
+<span class="fc bfc" id="L132" title="All 2 branches covered.">				for (Class&lt;?&gt; fromImplementedInterface : fromProperty.getClass().getInterfaces()) {</span>
+
+					// DBObject型のネストオブジェクトの場合
+					//if (fromImplementedInterface == java.util.List.class) { // DBから取り出す以上List継承クラスはありえない．DBList型で取り出される＝DBObject型で〃
+<span class="fc bfc" id="L136" title="All 2 branches covered.">					if (fromImplementedInterface == com.mongodb.DBObject.class) {</span>
+
+						// genericsのClassオブジェクトを取得
+<span class="fc" id="L139">						ParameterizedType ptype = (ParameterizedType)dest.getClass()</span>
+								.getDeclaredField(fieldName)
+								.getGenericType();
+<span class="fc" id="L142">						Class&lt;?&gt; destGenericsClass = (Class&lt;?&gt;)ptype.getActualTypeArguments()[0];</span>
+
+<span class="fc" id="L144">						List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+
+						// List内の全てのオブジェクトを再起差し替え
+<span class="fc bfc" id="L147" title="All 2 branches covered.">						for (DBObject nestedObject : (List&lt;DBObject&gt;)from.get(fieldName)) {</span>
+<span class="fc" id="L148">							Object o = destGenericsClass.newInstance();</span>
+<span class="fc" id="L149">							attachProperties(o, nestedObject);</span>
+<span class="fc" id="L150">							list.add(o);</span>
+<span class="fc" id="L151">						}</span>
+<span class="fc" id="L152">						fromProperty = list;</span>
+
+						// Listを発見したら他のクラスは無視
+<span class="fc" id="L155">						break;</span>
+					}
+				}
+
+				// メイン部分．実際にdest側にプロパティを差し替え
+<span class="fc" id="L160">				PropertyUtils.setProperty(dest, fieldName, fromProperty);</span>
+<span class="fc" id="L161">			} catch (IllegalArgumentException | NoSuchMethodException e) {</span>
+				// fromにはあってdest側に対応するプロパティが見つからない場合はひとまずメモ．
+<span class="fc" id="L163">				mismatches.add(fieldName);</span>
+<span class="fc" id="L164">				continue;</span>
+<span class="nc" id="L165">			} catch (IllegalAccessException | NoSuchFieldException | SecurityException | InvocationTargetException | InstantiationException e) {</span>
+				// 基本発生しない
+<span class="nc" id="L167">				System.err.println(&quot;予期せぬ例外が発生しました．&quot;);</span>
+<span class="nc" id="L168">				throw new RuntimeException(e);</span>
+<span class="fc" id="L169">			}</span>
+<span class="fc" id="L170">		}</span>
+
+		// mismatchがあった場合のみwarning
+<span class="fc bfc" id="L173" title="All 2 branches covered.">		if (mismatches.size() &gt; 0) {</span>
+<span class="fc" id="L174">			logger.warning(&quot;以下のプロパティに対して，対応するプロパティが見つからないか呼び出すことができませんでした．\n&quot; +</span>
+						&quot;念のため差し替える2つのオブジェクト（destとfrom）のプロパティが一致しているか確認してください．&quot; +
+						mismatches
+					);
+		}
+<span class="fc" id="L179">	}</span>
+	/**
+	 * &lt;p&gt;
+	 * Object → DBObjectの変換．
+	 * 作成したObjectのプロパティを，MongoDBのDBObjectに移し替える．
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用手順：
+	 *   1. 変換したいObjectを取得する．
+	 *   2. DBObject（空）を生成する．
+	 *   3. 本メソッドを呼び出す．
+	 * &lt;/pre&gt;
+	 *
+	 * &lt;pre&gt;
+	 * 利用例：
+	 *   Event event = getEvent(query);
+	 *   DBObject object = new BasicDBObject();
+	 *   DBUtils.convertToDBObject(object, event);
+	 * &lt;/pre&gt;
+	 *
+	 * @param dest 変換先のDBObject
+	 * @param from 変換元のObject
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static void convertToDBObject(DBObject dest, Object from){
+<span class="fc" id="L205">		ArrayList&lt;String&gt; mismatches = new ArrayList&lt;String&gt;();</span>
+
+		// from側の属性から探索する
+<span class="fc" id="L208">		Field[] fromFields = from.getClass().getDeclaredFields();</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">		for (Field fromField : fromFields) {</span>
+<span class="fc" id="L210">			String fieldName = fromField.getName();</span>
+
+			// カバレッジツールが埋め込む&quot;$jaccoData&quot;というフィールドを無視
+<span class="fc bfc" id="L213" title="All 2 branches covered.">			if(fieldName == &quot;$jacocoData&quot;) continue;</span>
+
+			try {
+<span class="fc" id="L216">				Object fromProperty = PropertyUtils.getProperty(from, fieldName);</span>
+
+				// nullオブジェクトは無視（デフォルトコンストラクタの振る舞いによっては発生）
+<span class="fc bfc" id="L219" title="All 2 branches covered.">				if (fromProperty == null) continue;</span>
+
+				// ネストオブジェクトのインタフェース全てを再起探索
+<span class="fc bfc" id="L222" title="All 2 branches covered.">				for (Class&lt;?&gt; fromImplementedInterface : fromProperty.getClass().getInterfaces()) {</span>
+
+					// Listの継承クラスを発見
+<span class="fc bfc" id="L225" title="All 2 branches covered.">					if (fromImplementedInterface == java.util.List.class) {</span>
+<span class="fc" id="L226">						BasicDBList list = new BasicDBList();</span>
+
+						// 再帰呼び出しで変換
+<span class="fc bfc" id="L229" title="All 2 branches covered.">						for (Object p : (List&lt;Object&gt;)fromProperty) {</span>
+<span class="fc" id="L230">							DBObject o = new BasicDBObject();</span>
+<span class="fc" id="L231">							convertToDBObject(o, p);</span>
+<span class="fc" id="L232">							list.add(o);</span>
+<span class="fc" id="L233">						}</span>
+<span class="fc" id="L234">						fromProperty = list;</span>
+
+						// 他の継承クラスは無視
+<span class="fc" id="L237">						break;</span>
+					}
+				}
+				// 差し替え
+<span class="fc" id="L241">				dest.put(fieldName, fromProperty);</span>
+
+<span class="nc" id="L243">			} catch (IllegalAccessException | NoSuchMethodException e) {</span>
+<span class="nc" id="L244">				mismatches.add(fieldName);</span>
+<span class="nc" id="L245">				continue;</span>
+<span class="nc" id="L246">			} catch (InvocationTargetException e) {</span>
+				// 基本発生しない
+<span class="nc" id="L248">				System.err.println(&quot;予期せぬ例外が発生しました．&quot;);</span>
+<span class="nc" id="L249">				throw new RuntimeException(e);</span>
+<span class="fc" id="L250">			}</span>
+		}
+		// mismatchがあった場合のみwarning
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">		if (mismatches.size() &gt; 0) {</span>
+<span class="nc" id="L254">			logger.warning(&quot;以下のプロパティに対して，対応するプロパティが見つからないか呼び出すことができませんでした．\n&quot; +</span>
+						&quot;念のため差し替える2つのオブジェクト（destとfrom）のプロパティが一致しているか確認してください．&quot; +
+						mismatches
+					);
+		}
+<span class="fc" id="L259">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

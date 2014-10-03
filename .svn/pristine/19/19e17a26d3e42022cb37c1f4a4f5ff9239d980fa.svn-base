@@ -1,0 +1,24 @@
+[レビュー日時] 2014/8/19 16:26
+[レビュー者] 鷹取敏志(2014016)
+[チェックリストバージョン] 20140523
+
+[対象]
+TicketModelクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+SB-2 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 OK
+TA-5 OK

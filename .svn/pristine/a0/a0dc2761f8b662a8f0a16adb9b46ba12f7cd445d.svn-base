@@ -1,0 +1,154 @@
+------------------
+[レビュー日時] 2014/8/21 10:40
+[レビュー者] 江川(2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+TicketModelクラス(UC[DisplayEventDetail])
+
+[チェックリスト項目]
+SA-1:NG
+198行目
+
+query.put("owner", event.getPromoterId());
+を
+
+query.put("owner", userId);
+
+に変更してください．
+データベース仕様書によるとownerは興行主ではなくチケット購入者らしいです．
+（getBoughtSeatCategoriesメソッドはまだテストされていませんが，大槻君によるとここにバグがあるそうです）
+
+SA-2:OK
+
+SB-1:OK
+SB-2:OK
+SC-1:OK
+SC-2:OK
+SC-3:OK
+SD-1:OK
+SD-2:OK
+
+TA-1:NG
+getBoughtSeatCategoriesメソッドが実装されていません．
+また，eventオブジェクトのｔotalSeatsフィールドに値(リスト)が設定されていないため，
+List<SeatCategory> list = ticketModel.getRemainSeatCategories(event);
+で取得したリストのサイズが0となっています．
+
+200行目の
+
+SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+
+を
+
+SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+List<SeatCategory> seatCategoryList = new ArrayList<SeatCategory>();
+seatCategoryList.add(category);
+event.setTotalSeats(seatCategoryList);
+
+に変更してください．それに加え，232行目以降の
+
+TicketModel ticketModel = new TicketModel();
+SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+ticketModel.generateTickets(event,  category);
+category = eventModel.registerSeatCategory(event.getEventId(), "B", 100, 2000);
+ticketModel.generateTickets(event,  category);
+category = eventModel.registerSeatCategory(event.getEventId(), "C", 100, 2000);
+ticketModel.generateTickets(event,  category);
+category = eventModel.registerSeatCategory(event.getEventId(), "D", 100, 2000);
+ticketModel.generateTickets(event,  category);
+category = eventModel.registerSeatCategory(event.getEventId(), "E", 100, 2000);
+ticketModel.generateTickets(event,  category);
+
+を
+
+TicketModel ticketModel = new TicketModel();
+List<SeatCategory> seatCategoryList = new ArrayList<SeatCategory>();
+
+SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+ticketModel.generateTickets(event,  category);
+seatCategoryList.add(category);
+category = eventModel.registerSeatCategory(event.getEventId(), "B", 100, 2000);
+ticketModel.generateTickets(event,  category);
+seatCategoryList.add(category);
+category = eventModel.registerSeatCategory(event.getEventId(), "C", 100, 2000);
+ticketModel.generateTickets(event,  category);
+seatCategoryList.add(category);
+category = eventModel.registerSeatCategory(event.getEventId(), "D", 100, 2000);
+ticketModel.generateTickets(event,  category);
+seatCategoryList.add(category);
+category = eventModel.registerSeatCategory(event.getEventId(), "E", 100, 2000);
+ticketModel.generateTickets(event,  category);
+seatCategoryList.add(category);
+
+event.setTotalSeats(seatCategoryList);
+
+に変更してください．
+最後に，testGetRemainSeatCategories02メソッドについてですが，
+testGetRemainSeatCategories01メソッドでやっているように
+各座席種別について座席情報を確認したほうがいいように思います．
+具体的には，
+SeatCategory remain = list.get(0);
+assertEquals("A", remain.getSeatName());
+assertEquals(100, remain.getCount());
+assertEquals(2000, remain.getFee());
+のような処理を5つの座席種別について繰り返してください
+
+TA-2:OK
+TA-3:OK
+TA-4:OK
+TA-5:OK
+
+
+------------------
+[レビュー日時] 2014/8/20 17:24
+[レビュー者] 荒木雅斗(2014043)
+[チェックリストバージョン] 20140523
+
+[対象]
+TicketModelクラス
+
+[チェックリスト項目]
+SA-1:OK
+SA-2:OK
+
+SB-1:OK
+SB-2:OK
+SC-1:OK
+SC-2:OK
+SC-3:OK
+SD-1:OK
+SD-2:OK
+→今回のUCにおいてはすべてのメソッドにjavadocがついている．
+
+TA-1:OK
+TA-2:OK
+TA-3:OK
+TA-4:OK
+TA-5:OK
+
+------------------
+[レビュー日時] 2014/8/19 16:26
+[レビュー者] 鷹取敏志(2014016)
+[チェックリストバージョン] 20140523
+
+[対象]
+TicketModelクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+SB-2 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+UC[RegisterSeatCategory]の必要なメソッドに関してはOK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 OK
+TA-5 OK

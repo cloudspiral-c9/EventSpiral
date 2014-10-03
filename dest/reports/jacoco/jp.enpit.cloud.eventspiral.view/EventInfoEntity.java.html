@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EventInfoEntity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">EventInfoEntity.java</span></div><h1>EventInfoEntity.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ *
+ * 新規イベントを登録するときのフォームクラス．
+ *
+ * @author 2014040 (a-miura)
+ *
+ */
+
+public class EventInfoEntity extends AbstractEntity {
+
+    /**
+     * イベントID
+     */
+	@NotNull(message=&quot;必須項目が未入力です&quot;)
+	@NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String eventId;
+
+    /**
+     * イベント名
+     */
+	@NotNull(message=&quot;必須項目が未入力です&quot;)
+	@NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String eventName;
+
+    /**
+     * イベント開催日時
+     */
+	@NotNull(message=&quot;必須項目が未入力です&quot;)
+    private Date eventDate;
+
+    /**
+     * チケット販売開始日時
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    private Date ticketStartDate;
+
+    /**
+     * 説明
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String description;
+
+    /**
+     * 興行主ID．
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String promoterId;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+<span class="fc" id="L62">    public EventInfoEntity() {</span>
+
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;イベントIDを取得する&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return イベントID
+     */
+    public String getEventId() {
+<span class="fc" id="L73">        return eventId;</span>
+    }
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;eventIdをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param eventId イベントId
+     */
+    public void setEventId(String eventId) {
+<span class="fc" id="L83">        this.eventId = eventId;</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;イベント名を取得する&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return イベント名
+     */
+    public String getEventName() {
+<span class="fc" id="L93">        return eventName;</span>
+    }
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;eventNameをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param eventName イベント名
+     */
+    public void setEventName(String eventName) {
+<span class="fc" id="L103">        this.eventName = eventName;</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;イベント開催日時を取得する&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return イベント開催日時
+     */
+    public Date getEventDate() {
+<span class="fc" id="L113">        return eventDate;</span>
+    }
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;eventDateをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param eventDate イベント開催日時
+     */
+    public void setEventDate(Date eventDate) {
+<span class="fc" id="L123">        this.eventDate = eventDate;</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;チケット販売開始日時を取得する&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return チケット販売開始日時
+     */
+    public Date getTicketStartDate() {
+<span class="fc" id="L133">        return ticketStartDate;</span>
+    }
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;ticketStartDateをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param ticketStasrtDate チケット販売開始日時
+     */
+    public void setTicketStartDate(Date ticketStartDate) {
+<span class="fc" id="L143">        this.ticketStartDate = ticketStartDate;</span>
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;説明を取得する&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return 説明
+     */
+    public String getDescription() {
+<span class="fc" id="L153">        return description;</span>
+    }
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;descriptionをフィールドへ登録する&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param description 説明
+     */
+    public void setDescription(String description) {
+<span class="fc" id="L163">        this.description = description;</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;興行主IDを取得する．&lt;/li&gt;
+     *&lt;/ol&gt;
+     * @return 興行主ID
+     */
+	public String getPromoterId() {
+<span class="fc" id="L173">		return promoterId;</span>
+	}
+
+    /**
+     * &lt;ol&gt;
+     *  &lt;li&gt;promoterIdをフィールドへ登録する．&lt;/li&gt;
+     * &lt;/ol&gt;
+     * @param promoterId 興行主ID
+     */
+	public void setPromoterId(String promoterId) {
+<span class="fc" id="L183">		this.promoterId = promoterId;</span>
+<span class="fc" id="L184">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

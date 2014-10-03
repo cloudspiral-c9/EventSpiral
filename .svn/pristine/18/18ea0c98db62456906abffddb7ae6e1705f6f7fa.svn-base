@@ -1,0 +1,503 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+/**
+ * UC: イベントの座席情報種別を登録する<br/>
+ *   testSetEventId01(): nullを入力 <br/>
+ *   testSetEventId02(): 空文字列 <br/>
+ *   testSetEventId03(): 変換対象1個 <br/>
+ *   testSetEventId04(): 同じ変換対象2個 <br/>
+ *   testSetEventId05(): 変換対象のみ全種 <br/>
+ *   testSetEventId06(): 非変換対象1字 <br/>
+ *   testSetEventId07(): 非変換対象のみ5字 <br/>
+ *   testSetEventId08(): 変換対象と非変換対象が混在 <br/>
+ *   testSetEventId09(): 多バイト文字混在 <br/>
+ *   testSetSeatName01(): nullを入力 <br/>
+ *   testSetSeatName02(): 空文字列 <br/>
+ *   testSetSeatName03(): 変換対象1個 <br/>
+ *   testSetSeatName04(): 同じ変換対象2個 <br/>
+ *   testSetSeatName05(): 変換対象のみ全種 <br/>
+ *   testSetSeatName06(): 非変換対象1字 <br/>
+ *   testSetSeatName07(): 非変換対象のみ5字 <br/>
+ *   testSetSeatName08(): 変換対象と非変換対象が混在 <br/>
+ *   testSetSeatName09(): 多バイト文字混在 <br/>
+ *   testValidate01(): 正常系(単価と座席数が最低数) <br/>
+ *   testValidate02(): 正常系(単価と座席数が最高数) <br/>
+ *   testValidate03(): countが0 <br/>
+ *   testValidate04(): countが 100000001<br/>
+ *   testValidate05(): feeが -1 <br/>
+ *   testValidate06(): feeが 1000001<br/>
+ *   testValidate07(): eventIdが空文字列 <br/>
+ *   testValidate08(): eventIdがnull <br/>
+ *   testValidate09(): seatNameが空文字列 <br/>
+ *   testValidate10(): seatNameがnull <br/>
+ *
+ * @author s-egawa(2014001)
+ */
+public class RegisteringSeatCategoryFormTest {
+
+	/**
+	 * nullを入力 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数がnull <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが空文字列．<br/>
+	 */
+	@Test
+	public void testSetEventId01() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId(null);
+		assertEquals("", sut.getEventId());
+	}
+
+	/**
+	 * 空文字列 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が空文字列 ("") <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが空文字列．<br/>
+	 */
+	@Test
+	public void testSetEventId02() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("");
+		assertEquals("", sut.getEventId());
+	}
+
+	/**
+	 * 変換対象1個 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId03() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("&");
+		assertEquals("&amp;", sut.getEventId());
+	}
+
+	/**
+	 * 同じ変換対象2個 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "&&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "&amp;&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId04() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("&&");
+		assertEquals("&amp;&amp;", sut.getEventId());
+	}
+
+	/**
+	 * 変換対象のみ全種 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "'\"><&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "&#39;&quot;&gt;&lt;&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId05() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("'\"><&");
+		assertEquals("&#39;&quot;&gt;&lt;&amp;", sut.getEventId());
+	}
+
+	/**
+	 * 非変換対象1字 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "\\" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "\\" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId06() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("\\");
+		assertEquals("\\", sut.getEventId());
+	}
+
+	/**
+	 * 非変換対象のみ5字 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "0@\r\\_" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "0@\r\\_" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId07() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("0@\r\\_");
+		assertEquals("0@\r\\_", sut.getEventId());
+	}
+
+	/**
+	 * 変換対象と非変換対象が混在 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "0'@\"\r>\\<_&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "0&#39;@&#quot;\r&gt;\\&lt;_&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId08() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("0'@\"\r>\\<_&");
+		assertEquals("0&#39;@&quot;\r&gt;\\&lt;_&amp;", sut.getEventId());
+	}
+
+	/**
+	 * 多バイト文字混在 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setEventId} <br/>
+	 * 条件: 引数が "あ＞&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getEventId}で取得した
+	 *       ユーザIDが "あ＞&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetEventId09() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setEventId("あ＞&");
+		assertEquals("あ＞&amp;", sut.getEventId());
+	}
+
+	/**
+	 * nullを入力 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数がnull <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが空文字列．<br/>
+	 */
+	@Test
+	public void testSetSeatName01() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName(null);
+		assertEquals("", sut.getSeatName());
+	}
+
+	/**
+	 * 空文字列 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が空文字列 ("") <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが空文字列．<br/>
+	 */
+	@Test
+	public void testSetSeatName02() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("");
+		assertEquals("", sut.getSeatName());
+	}
+
+	/**
+	 * 変換対象1個 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName03() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("&");
+		assertEquals("&amp;", sut.getSeatName());
+	}
+
+	/**
+	 * 同じ変換対象2個 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "&&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "&amp;&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName04() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("&&");
+		assertEquals("&amp;&amp;", sut.getSeatName());
+	}
+
+	/**
+	 * 変換対象のみ全種 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "'\"><&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "&#39;&quot;&gt;&lt;&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName05() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("'\"><&");
+		assertEquals("&#39;&quot;&gt;&lt;&amp;", sut.getSeatName());
+	}
+
+	/**
+	 * 非変換対象1字 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "\\" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "\\" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName06() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("\\");
+		assertEquals("\\", sut.getSeatName());
+	}
+
+	/**
+	 * 非変換対象のみ5字 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "0@\r\\_" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "0@\r\\_" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName07() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("0@\r\\_");
+		assertEquals("0@\r\\_", sut.getSeatName());
+	}
+
+	/**
+	 * 変換対象と非変換対象が混在 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "0'@\"\r>\\<_&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "0&#39;@&#quot;\r&gt;\\&lt;_&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName08() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("0'@\"\r>\\<_&");
+		assertEquals("0&#39;@&quot;\r&gt;\\&lt;_&amp;", sut.getSeatName());
+	}
+
+	/**
+	 * 多バイト文字混在 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#setSeatName} <br/>
+	 * 条件: 引数が "あ＞&" <br/>
+	 * 期待する結果: {@link RegisteringSeatCategoryForm#getSeatName}で取得した
+	 *       ユーザIDが "あ＞&amp;" に等しい．<br/>
+	 */
+	@Test
+	public void testSetSeatName09() throws Exception {
+		RegisteringSeatCategoryForm sut = new RegisteringSeatCategoryForm();
+		sut.setSeatName("あ＞&");
+		assertEquals("あ＞&amp;", sut.getSeatName());
+	}
+
+	/**
+	 * 正常系(単価と座席数が最低数) <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に1,
+	 *       fee に0,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: 戻り値が<code>true</code>．<br/>
+	 */
+	@Test
+	public void testValidate01() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(1);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(0);
+		rSCForm.setSeatName("A");
+
+		boolean actual = rSCForm.validate();
+		assertTrue(actual);
+	}
+
+	/**
+	 * 正常系(単価と座席数が最高数) <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000000,
+	 *       fee に1000000,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: 戻り値が<code>true</code>．<br/>
+	 */
+	@Test
+	public void testValidate02() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000000);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(1000000);
+		rSCForm.setSeatName("A");
+
+		boolean actual = rSCForm.validate();
+		assertTrue(actual);
+	}
+
+	/**
+	 * countが0 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に0,
+	 *       fee に1000000,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate04() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(0);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(1000000);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * countが100000001 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000001,
+	 *       fee に1000000,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate03() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000001);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(1000000);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * feeが-1 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000000,
+	 *       fee に-1,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate05() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000000);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(-1);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * feeが1000001 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000000,
+	 *       fee に1000001,
+	 *       eventIdに "event1",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate06() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000000);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(1000001);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * eventIdが空文字列 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に1,
+	 *       fee に0,
+	 *       eventIdに "",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate07() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(1);
+		rSCForm.setEventId("");
+		rSCForm.setFee(0);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * eventIdがnull <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000000,
+	 *       fee に1000000,
+	 *       eventIdに "null",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate08() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000000);
+		rSCForm.setEventId(null);
+		rSCForm.setFee(1000000);
+		rSCForm.setSeatName("A");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * seatNameが空文字列 <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に1,
+	 *       fee に0,
+	 *       eventIdに "event1",
+	 *       seatNameに "" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate09() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(1);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(0);
+		rSCForm.setSeatName("");
+
+		rSCForm.validate();
+	}
+
+	/**
+	 * seatNameがnull <br/>
+	 * 対象: {@link RegisteringSeatCategoryForm#validate} <br/>
+	 * 条件: 事前状態として count に100000000,
+	 *       fee に1000000,
+	 *       eventIdに "null",
+	 *       seatNameに "A" をセット．<br/>
+	 * 期待する結果: {@link TEMValidationException}が発生．<br/>
+	 * @throws TEMValidationException
+	 */
+	@Test(expected = TEMValidationException.class)
+	public void testValidate10() throws TEMValidationException {
+		RegisteringSeatCategoryForm rSCForm = new RegisteringSeatCategoryForm();
+		rSCForm.setCount(100000000);
+		rSCForm.setEventId("event1");
+		rSCForm.setFee(1000000);
+		rSCForm.setSeatName(null);
+
+		rSCForm.validate();
+	}
+}

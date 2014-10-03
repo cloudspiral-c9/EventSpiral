@@ -1,0 +1,96 @@
+新しいほうを上に書くこと
+
+--------------------
+[レビュー日時] 2014/8/19 10:40
+[レビュー者] 江川 翔太 (2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+SignUpPromoterControllerクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 OK
+SB-2 OK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 OK
+カバレッジは100%ではないが問題ないと判断した．
+TA-5 OK
+
+--------------------
+[レビュー日時] 2014/8/18 17:04
+[レビュー者] 江川 翔太 (2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+SignUpPromoterControllerクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 OK
+SB-2 OK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 NG
+TA-5 NG
+
+--------------------
+[レビュー日時] 2014/8/18 17:04
+[レビュー者] 江川 翔太 (2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+SignUpPromoterControllerクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 OK
+SB-2 OK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+
+TA-1 NG
+@Testが抜けてるメソッドがあります
+TA-2 OK
+TA-3 OK
+TA-4 NG
+TA-5 NG
+--------------------
+[レビュー日時] 2014/8/18 16:36
+[レビュー者] 江川 翔太 (2014001)
+[チェックリストバージョン] 20140523
+
+[対象]
+SignUpPromoterControllerクラス
+
+[チェックリスト項目]
+SA-1 OK
+SA-2 OK
+SB-1 NG
+71行目：accountModel.registerPromoter(account.getUserId(), account.getPass());
+正しくはaccountModel.registerPromoter(form.getUserId(), form.getPass());
+SB-2 OK
+SC-1,2,3 OK
+SD-1,2 OK
+SD-2 OK
+
+TA-1 OK
+TA-2 OK
+TA-3 OK
+TA-4 NG
+TA-5 NG

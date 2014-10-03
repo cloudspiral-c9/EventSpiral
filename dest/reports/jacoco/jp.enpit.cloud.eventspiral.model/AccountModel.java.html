@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AccountModel.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.model</a> &gt; <span class="el_source">AccountModel.java</span></div><h1>AccountModel.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.model;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+
+
+/**
+ * accountコレクションのModelクラス
+ *
+ * @author 2014003
+ */
+public class AccountModel {
+<span class="fc" id="L21">	private final String DB_ACCOUNT_COLLECTION = &quot;account&quot;;</span>
+	/**
+	 * Loggerオブジェクト
+	 */
+	private Logger logger;
+
+	/**
+	 * DBオブジェクト
+	 */
+	private DB db;
+
+	/**
+	 * DBCollectionオブジェクト
+	 */
+	private DBCollection coll;
+
+	/**
+	 * Logger、DB、DBCollectionフィールドに各オブジェクトを設定する．
+	 */
+<span class="fc" id="L40">	public AccountModel() {</span>
+<span class="fc" id="L41">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L42">		db = DBUtils.getInstance().getDb();</span>
+<span class="fc" id="L43">		coll = db.getCollection(DB_ACCOUNT_COLLECTION);</span>
+<span class="fc" id="L44">	}</span>
+
+	/**
+	 * 新規アカウント情報をデータベースに登録する.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;userId, pass, roleからアカウント情報（Accountオブジェクト）を構築する．&lt;/li&gt;
+	 *   &lt;li&gt;与えられた userId を持つアカウントがあるかをisUniqueNameメソッドを利用して調査する．
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;userIdの重複がある場合、&lt;code&gt;AccountAlreadyRegisteredException&lt;/code&gt;を投げる&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 *   &lt;li&gt;アカウント情報をデータベースに登録する．&lt;/li&gt;
+	 *     {@code db.account.insert({ &quot;userId&quot; : userId, &quot;pass&quot; : pass, &quot;role&quot; : role })}
+	 *   &lt;li&gt;アカウント情報を返す．&lt;/li&gt;
+	 *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param userId	ユーザID
+	 * @param pass	パスワード
+	 * @param role	権限
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws AccountAlreadyRegisteredException すでにアカウントが登録されている場合．
+	 */
+	private void registerAccount(String userId, String pass, String role) throws TEMFatalException, AccountAlreadyRegisteredException {
+<span class="fc" id="L71">		Account account = new Account();</span>
+<span class="fc" id="L72">		account.setUserId(userId);</span>
+<span class="fc" id="L73">		account.setPass(pass);</span>
+<span class="fc" id="L74">		account.setRole(role);</span>
+
+		// 重複チェック
+<span class="fc bfc" id="L77" title="All 2 branches covered.">		if (! isUniqueName(account.getUserId())) {</span>
+<span class="fc" id="L78">			String msg = &quot;Account:&quot; + userId + &quot; has arleady registered.&quot;;</span>
+<span class="fc" id="L79">			logger.warning(&quot;AccountModel.registerAccount: &quot; + msg);</span>
+<span class="fc" id="L80">			throw new AccountAlreadyRegisteredException(msg);</span>
+		}
+
+		// 指定パラメタからMongoDB格納用オブジェクトを生成
+<span class="fc" id="L84">		DBObject object = new BasicDBObject();</span>
+<span class="fc" id="L85">		DBUtils.convertToDBObject(object, account);</span>
+
+		try {
+<span class="fc" id="L88">			coll.insert(object);</span>
+
+<span class="nc" id="L90">		} catch (MongoException e) {</span>
+<span class="nc" id="L91">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L92">			throw new TEMFatalException(e);</span>
+<span class="fc" id="L93">		}</span>
+<span class="fc" id="L94">	}</span>
+
+	/**
+	 * 新規一般ユーザアカウントをデータベースに登録する.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;
+	 *     roleをuserとして，&lt;code&gt;registerAccount&lt;/code&gt;メソッドを呼び出し、
+	 *     一般ユーザアカウントを登録する．
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param userId	ユーザID
+	 * @param pass	パスワード
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws AccountAlreadyRegisteredException すでにアカウントが登録されている場合．
+	 */
+	public void registerUser(String userId, String pass) throws TEMFatalException, AccountAlreadyRegisteredException {
+<span class="fc" id="L110">		logger.info(&quot;AccountModel.registerUser&quot;);</span>
+<span class="fc" id="L111">		registerAccount(userId, pass, &quot;user&quot;);</span>
+<span class="fc" id="L112">	}</span>
+
+	/**
+	 * 新規興行主アカウントをデータベースに登録する.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;
+	 *     roleをpromoterとして，&lt;code&gt;registerAccount&lt;/code&gt;メソッドを呼び出し、
+	 *     興行主アカウントを登録する．
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param promoterId	プロモーターID
+	 * @param pass	パスワード
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws AccountAlreadyRegisteredException すでにアカウントが登録されている場合．
+	 */
+	public void registerPromoter(String promoterId, String pass) throws TEMFatalException, AccountAlreadyRegisteredException {
+<span class="fc" id="L128">		logger.info(&quot;AccountModel.registerPromoter&quot;);</span>
+<span class="fc" id="L129">		registerAccount(promoterId, pass, &quot;promoter&quot;);</span>
+<span class="fc" id="L130">	}</span>
+
+
+	/**
+	 * アカウント認証処理.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;userId、passをキーにしてデータベースからアカウント情報を取得する．&lt;/li&gt;
+	 *   {@code db.account.findOne({ &quot;userId&quot; : userId, &quot;pass&quot; : pass })}
+	 *   &lt;li&gt;アカウントが存在しない場合、&lt;code&gt;AuthenticationFailureException&lt;/code&gt;を投げる．&lt;/li&gt;
+	 *   &lt;li&gt;&lt;code&gt;Account&lt;/code&gt;オブジェクトを生成し、アカウント情報を返す．&lt;/li&gt;
+	 *   &lt;li&gt;&lt;code&gt;MongoException&lt;/code&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外を&lt;code&gt;TEMFatalException&lt;/code&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param userId ユーザ名
+	 * @param pass パスワード
+	 * @return アカウント情報
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws AuthenticationFailureException 認証が失敗した場合
+	 */
+	public Account authenticate(String userId, String pass) throws TEMFatalException, AuthenticationFailureException {
+<span class="fc" id="L153">		logger.info(&quot;AccountModel.authenticate&quot;);</span>
+
+		// DB問い合わせ用のDBオブジェクトを作る
+<span class="fc" id="L156">		DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L157">		query.put(&quot;userId&quot;, userId);</span>
+<span class="fc" id="L158">		query.put(&quot;pass&quot;, pass);</span>
+
+		try {
+			// DBに問い合わせ
+<span class="fc" id="L162">			DBObject o = coll.findOne(query);</span>
+
+			// 指定ユーザが存在しない
+<span class="fc bfc" id="L165" title="All 2 branches covered.">			if (o == null) {</span>
+<span class="fc" id="L166">				String msg = &quot;User {userId:&quot; + userId + &quot;, pass:&quot; + pass + &quot;} not exist.&quot;;</span>
+<span class="fc" id="L167">				logger.warning(msg);</span>
+<span class="fc" id="L168">				throw new AuthenticationFailureException(msg);</span>
+			}
+<span class="fc" id="L170">			Account account = new Account();</span>
+<span class="fc" id="L171">			DBUtils.attachProperties(account, o);</span>
+<span class="fc" id="L172">			return account;</span>
+<span class="nc" id="L173">		} catch (MongoException e) {</span>
+<span class="nc" id="L174">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L175">			throw new TEMFatalException(e);</span>
+		}
+	}
+
+
+	/**
+	 * ユーザ名の重複チェック
+	 * db.account.findOne({ &quot;userId&quot; : userId })の結果を利用して，存在するかしないかをチェックする
+	 * @param userId ユーザ名
+	 * @return 与えられた userId が既に登録されていれば false，存在していなければ true．
+	 */
+	private boolean isUniqueName(String userId) throws TEMFatalException {
+<span class="fc" id="L187">		logger.info(&quot;AccountModel.isNameUnique&quot;);</span>
+
+<span class="fc" id="L189">		DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L190">		query.put(&quot;userId&quot;, userId);</span>
+
+		try {
+<span class="fc bfc" id="L193" title="All 2 branches covered.">			if (coll.findOne(query) != null) {</span>
+<span class="fc" id="L194">				return false; // duplicated</span>
+			}
+<span class="nc" id="L196">		} catch (MongoException e) {</span>
+<span class="nc" id="L197">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L198">			throw new TEMFatalException(e);</span>
+<span class="fc" id="L199">		}</span>
+<span class="fc" id="L200">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

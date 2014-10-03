@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="2014003" name="jp.enpit.cloud.eventspiral.controller.SignUpPromoterControllerTest" tests="3" time="0.866" timestamp="2014-10-03T07:50:21">
+  <properties>
+    <property name="java.vendor" value="Oracle Corporation" />
+    <property name="src.test.dir" value="testcase" />
+    <property name="ant.file.type.commons" value="file" />
+    <property name="username" value="tomcat" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="eclipse.pdebuild.templates" value="/C:/eclipse/plugins/org.eclipse.pde.build_3.8.100.v20130514-1028/templates/" />
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers" />
+    <property name="dest.report.dir" value="dest/reports" />
+    <property name="env.PROMPT" value="$P$G" />
+    <property name="ant.file.type.EventSpiral" value="file" />
+    <property name="os.name" value="Windows 7" />
+    <property name="env.FP_NO_HOST_CHECK" value="NO" />
+    <property name="sun.boot.class.path" value="C:\Java\jre7\lib\resources.jar;C:\Java\jre7\lib\rt.jar;C:\Java\jre7\lib\sunrsasign.jar;C:\Java\jre7\lib\jsse.jar;C:\Java\jre7\lib\jce.jar;C:\Java\jre7\lib\charsets.jar;C:\Java\jre7\lib\jfr.jar;C:\Java\jre7\classes" />
+    <property name="env.COMPUTERNAME" value="2014003" />
+    <property name="env.CommonProgramW6432" value="C:\Program Files\Common Files" />
+    <property name="src.web.dir" value="WebContent" />
+    <property name="env.ALLUSERSPROFILE" value="C:\ProgramData" />
+    <property name="sun.desktop" value="windows" />
+    <property name="java.vm.specification.vendor" value="Oracle Corporation" />
+    <property name="ant.home" value="C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030" />
+    <property name="java.runtime.version" value="1.7.0_51-b13" />
+    <property name="env.HOMEPATH" value="\Users\2014003" />
+    <property name="dest.dir" value="dest" />
+    <property name="user.name" value="2014003" />
+    <property name="dest.temp.dir" value="dest/temp" />
+    <property name="user.language" value="ja" />
+    <property name="env.windows_tracing_flags" value="3" />
+    <property name="sun.boot.library.path" value="C:\Java\jre7\bin" />
+    <property name="ant.project.default-target" value="deploy" />
+    <property name="lib.test.dir" value="lib/test" />
+    <property name="ant.project.name" value="EventSpiral" />
+    <property name="java.version" value="1.7.0_51" />
+    <property name="env.PROCESSOR_IDENTIFIER" value="Intel64 Family 6 Model 44 Stepping 2, GenuineIntel" />
+    <property name="user.timezone" value="" />
+    <property name="tomcat.dir" value="C:\\tomcat\\" />
+    <property name="env.CLIENTNAME" value="UKAWA-VAIO" />
+    <property name="env.TEMP" value="C:\Users\2014003\AppData\Local\Temp" />
+    <property name="sun.arch.data.model" value="64" />
+    <property name="java.endorsed.dirs" value="C:\Java\jre7\lib\endorsed" />
+    <property name="tomcat.url" value="http://localhost:8080/manager/text" />
+    <property name="sun.cpu.isalist" value="amd64" />
+    <property name="env.HOMEDRIVE" value="C:" />
+    <property name="sun.jnu.encoding" value="MS932" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="ant.file.commons" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\build-common.xml" />
+    <property name="file.separator" value="\" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="51.0" />
+    <property name="user.country" value="JP" />
+    <property name="lib.tool.dir" value="lib/tool" />
+    <property name="java.home" value="C:\Java\jre7" />
+    <property name="env.PSModulePath" value="C:\Windows\system32\WindowsPowerShell\v1.0\Modules\" />
+    <property name="env.APPDATA" value="C:\Users\2014003\AppData\Roaming" />
+    <property name="env.PUBLIC" value="C:\Users\Public" />
+    <property name="env.windows_tracing_logfile" value="C:\BVTBin\Tests\installpackage\csilogfile.log" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="env.ComSpec" value="C:\Windows\system32\cmd.exe" />
+    <property name="env.OS" value="Windows_NT" />
+    <property name="env.CommonProgramFiles" value="C:\Program Files\Common Files" />
+    <property name="ant.file" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\build.xml" />
+    <property name="os.version" value="6.1" />
+    <property name="env.ProgramW6432" value="C:\Program Files" />
+    <property name="dest.test.dir" value="dest/test-classes" />
+    <property name="path.separator" value=";" />
+    <property name="java.vm.version" value="24.51-b03" />
+    <property name="user.variant" value="" />
+    <property name="env.USERPROFILE" value="C:\Users\2014003" />
+    <property name="ant.library.dir" value="C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib" />
+    <property name="dest.report.test.dir" value="dest/reports/test" />
+    <property name="logging.file" value="C:/tomcat/logs/tem%u.log" />
+    <property name="env.JAVA_HOME" value="C:\Java\jdk1.7.0_51" />
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob" />
+    <property name="env.TMP" value="C:\Users\2014003\AppData\Local\Temp" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type.windows" value="file" />
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit" />
+    <property name="_jacoco.agentFile" value="C:\Users\2014003\AppData\Local\Temp\jacocoagent1605840287352167568.jar" />
+    <property name="user.script" value="" />
+    <property name="dest.javadoc.dir" value="dest/javadoc" />
+    <property name="have.eswar" value="true" />
+    <property name="eclipse.pdebuild.scripts" value="/C:/eclipse/plugins/org.eclipse.pde.build_3.8.100.v20130514-1028/scripts/" />
+    <property name="dest.report.jacoco.dir" value="dest/reports/jacoco" />
+    <property name="user.home" value="C:\Users\2014003" />
+    <property name="env.ProgramData" value="C:\ProgramData" />
+    <property name="env.ProgramFiles(x86)" value="C:\Program Files (x86)" />
+    <property name="env.SESSIONNAME" value="RDP-Tcp#0" />
+    <property name="java.specification.vendor" value="Oracle Corporation" />
+    <property name="env.NUMBER_OF_PROCESSORS" value="1" />
+    <property name="java.library.path" value="C:\Java\jre7\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\mongodb\bin;." />
+    <property name="java.vendor.url" value="http://java.oracle.com/" />
+    <property name="java.vm.vendor" value="Oracle Corporation" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="java.class.path" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\dest\test-classes;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\commons-beanutils-1.8.3.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\commons-logging-1.1.1.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\dwr.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\hibernate-validator-4.3.1.Final.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\hibernate-validator-annotation-processor-4.3.1.Final.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\jboss-logging-3.1.0.CR2.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\mongo-java-driver-2.11.1.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\WebContent\WEB-INF\lib\validation-api-1.0.0.GA.jar;C:\tomcat\lib\annotations-api.jar;C:\tomcat\lib\catalina-ant.jar;C:\tomcat\lib\catalina-ha.jar;C:\tomcat\lib\catalina-tribes.jar;C:\tomcat\lib\catalina.jar;C:\tomcat\lib\ecj-P20140317-1600.jar;C:\tomcat\lib\el-api.jar;C:\tomcat\lib\jasper-el.jar;C:\tomcat\lib\jasper.jar;C:\tomcat\lib\jsp-api.jar;C:\tomcat\lib\servlet-api.jar;C:\tomcat\lib\tomcat-api.jar;C:\tomcat\lib\tomcat-coyote.jar;C:\tomcat\lib\tomcat-dbcp.jar;C:\tomcat\lib\tomcat-i18n-es.jar;C:\tomcat\lib\tomcat-i18n-fr.jar;C:\tomcat\lib\tomcat-i18n-ja.jar;C:\tomcat\lib\tomcat-jdbc.jar;C:\tomcat\lib\tomcat-util.jar;C:\tomcat\lib\tomcat7-websocket.jar;C:\tomcat\lib\websocket-api.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\dest\classes;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\lib\test\hamcrest-library-1.3.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\lib\test\junit-4.11.jar;C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\lib\test\opencsv-2.3.jar;C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib\ant-launcher.jar;C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib\ant.jar;C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib\ant-junit.jar;C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib\ant-junit4.jar;C:\Users\2014003\AppData\Local\Temp\jacocoagent1605840287352167568.jar" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner testsfile=C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\junittestcases3718765317029359308.properties filtertrace=true haltOnError=false haltOnFailure=false formatter=org.apache.tools.ant.taskdefs.optional.junit.OutErrSummaryJUnitResultFormatter showoutput=false outputtoformatters=true logfailedtests=true logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\dest\reports\test\IGNORETHIS.xml crashfile=C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\junitvmwatcher4432543889324496541.properties propsfile=C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\junit7148029845363364185.properties" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.4 compiled on May 22 2012" />
+    <property name="build-properties" value="build-windows.xml" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="env.windir" value="C:\Windows" />
+    <property name="env.LOGONSERVER" value="\\2014003" />
+    <property name="env.PROCESSOR_ARCHITECTURE" value="AMD64" />
+    <property name="java.vm.specification.version" value="1.7" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.os.patch.level" value="Service Pack 1" />
+    <property name="env.ANT_HOME" value="C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030" />
+    <property name="env.ProgramFiles" value="C:\Program Files" />
+    <property name="env.PROCESSOR_REVISION" value="2c02" />
+    <property name="eclipse.pdebuild.home" value="/C:/eclipse/plugins/org.eclipse.pde.build_3.8.100.v20130514-1028/./" />
+    <property name="java.io.tmpdir" value="C:\Users\2014003\AppData\Local\Temp\" />
+    <property name="env.CommonProgramFiles(x86)" value="C:\Program Files (x86)\Common Files" />
+    <property name="lib.compile.dir" value="WebContent/WEB-INF/lib" />
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/" />
+    <property name="env.SystemRoot" value="C:\Windows" />
+    <property name="os.arch" value="amd64" />
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment" />
+    <property name="java.ext.dirs" value="C:\Java\jre7\lib\ext;C:\Windows\Sun\Java\lib\ext" />
+    <property name="user.dir" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral" />
+    <property name="env.LOCALAPPDATA" value="C:\Users\2014003\AppData\Local" />
+    <property name="ant.file.EventSpiral" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\build.xml" />
+    <property name="password" value="spiral" />
+    <property name="line.separator" value="&#xd;&#xa;" />
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM" />
+    <property name="dest.class.dir" value="dest/classes" />
+    <property name="env.PATHEXT" value=".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC" />
+    <property name="env.Path" value="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\mongodb\bin" />
+    <property name="basedir" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral" />
+    <property name="ant.java.version" value="1.7" />
+    <property name="ant.core.lib" value="C:\eclipse\plugins\org.apache.ant_1.8.4.v201303080030\lib\ant.jar" />
+    <property name="env.USERNAME" value="2014003" />
+    <property name="env.SystemDrive" value="C:" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="env.USERDOMAIN" value="2014003" />
+    <property name="java.specification.version" value="1.7" />
+    <property name="src.dir" value="src" />
+    <property name="ant.project.invoked-targets" value="deploy-with-test" />
+    <property name="ant.file.windows" value="C:\Users\2014003\Dropbox\2014003\eclipse\workspace\EventSpiral\build-windows.xml" />
+    <property name="env.PROCESSOR_LEVEL" value="6" />
+  </properties>
+  <testcase classname="jp.enpit.cloud.eventspiral.controller.SignUpPromoterControllerTest" name="testExecute01" time="0.696" />
+  <testcase classname="jp.enpit.cloud.eventspiral.controller.SignUpPromoterControllerTest" name="testExecute02" time="0.043" />
+  <testcase classname="jp.enpit.cloud.eventspiral.controller.SignUpPromoterControllerTest" name="testExecute03" time="0.117" />
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

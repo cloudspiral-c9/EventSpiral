@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BuyTicketController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">BuyTicketController.java</span></div><h1>BuyTicketController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.EventNotFoundException;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.OutOfDateException;
+import jp.enpit.cloud.eventspiral.model.SeatCategoryNotFoundException;
+import jp.enpit.cloud.eventspiral.model.TicketModel;
+import jp.enpit.cloud.eventspiral.model.TicketNotFoundException;
+import jp.enpit.cloud.eventspiral.model.TicketSoldOutException;
+import jp.enpit.cloud.eventspiral.util.ConversionUtils;
+import jp.enpit.cloud.eventspiral.view.BuyingTicketForm;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ *
+ * DWRから呼び出されるチケット購入処理のコントローラークラス
+ *
+ * @author 2014003
+ *
+ */
+public class BuyTicketController {
+
+	/**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+<span class="fc" id="L40">    public BuyTicketController() {</span>
+<span class="fc" id="L41">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * DWRより呼び出されるチケット購入処理のコントローラーメソッド.
+     * &lt;ol&gt;
+     *  &lt;li&gt;formデータをバリデートする．&lt;/li&gt;
+     *  &lt;li&gt;EventModelクラスのgetEvent()を呼び出し，Eventが存在するか確認する&lt;/li&gt;
+     *  &lt;li&gt;SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．&lt;/li&gt;
+     *  &lt;li&gt;TicketModelクラスのbuyTickets()を呼び出し、チケット購入処理を行う．&lt;/li&gt;
+     *  &lt;li&gt;TEMFatalExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「システムエラーが発生しました．管理者に連絡してください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;NotLoggedInExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *              発生した例外と「ログインしてください」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;TicketSoldOutException TicketNotFoundExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「残席数が足りません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;OutOfDateExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「まだ販売が開始されていません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;SeatCategoryNotFoundExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「座席種別名が正しくありません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;li&gt;EventNotFoundExceptionが発生した場合：&lt;/li&gt;
+     *      &lt;ol&gt;
+     *          &lt;li&gt;
+     *          発生した例外と「指定されたイベントが存在しません」というメッセージをTEMViewExceptionにラップして投げる．
+     *          &lt;/li&gt;
+     *      &lt;/ol&gt;
+     *  &lt;/ol&gt;
+     * @param form BuyingTicketFormオブジェクト
+     * @throws TEMViewException - EventNotFoundException,SeatCategoryNotFoundException,OutOfDateException,TicketSoldOutException,TicketNotFoundException,NotLoggedInException,TEMFatalExceptionが発生した場合．
+     */
+    public void execute(BuyingTicketForm form) throws TEMViewException {
+
+<span class="fc" id="L93">        logger.info(&quot;BuyTicketController.execute&quot;);</span>
+
+        //formデータをバリデートする．
+<span class="fc" id="L96">        form.validate();</span>
+
+        try{
+        	//EventModelクラスのgetEvent()を呼び出し、イベント情報を取得し，EventDetailEntityオブジェクトに設定する
+<span class="fc" id="L100">            EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L101">            EventDetailEntity entity = new EventDetailEntity();</span>
+<span class="fc" id="L102">            Event event = eventModel.getEvent(form.getEventId());</span>
+<span class="fc" id="L103">       	 	ConversionUtils.convert(entity, event);</span>
+
+       	 	//SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．
+<span class="fc" id="L106">       	 	Session session = new Session();</span>
+<span class="fc" id="L107">       	 	Account account = session.getCurrentAccount();</span>
+
+            //TicketModelクラスのbuyTickets()を呼び出し、チケット購入処理を行う．
+<span class="fc" id="L110">            TicketModel ticketModel = new TicketModel();</span>
+<span class="fc" id="L111">            ticketModel.buyTickets(form.getEventId(), form.getSeatName(), account.getUserId(), form.getCount());</span>
+
+<span class="nc" id="L113">        } catch (TEMFatalException e){</span>
+<span class="nc" id="L114">            String message = &quot;システムエラーが発生しました。管理者に連絡してください。&quot;;</span>
+<span class="nc" id="L115">            logger.severe(message);</span>
+<span class="nc" id="L116">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L117">        } catch (NotLoggedInException e) {</span>
+<span class="fc" id="L118">        	String message = &quot;ログインしてください&quot;;</span>
+<span class="fc" id="L119">            logger.severe(message);</span>
+<span class="fc" id="L120">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L121">		} catch (TicketSoldOutException e) {</span>
+<span class="fc" id="L122">			String message = &quot;残席数が足りません&quot;;</span>
+<span class="fc" id="L123">            logger.severe(message);</span>
+<span class="fc" id="L124">            throw new TEMViewException(message, e);</span>
+<span class="nc" id="L125">		} catch (TicketNotFoundException e) {</span>
+<span class="nc" id="L126">			String message = &quot;残席数が足りません&quot;;</span>
+<span class="nc" id="L127">            logger.severe(message);</span>
+<span class="nc" id="L128">            throw new TEMViewException(message, e);</span>
+<span class="nc" id="L129">		} catch (OutOfDateException e) {</span>
+<span class="nc" id="L130">			String message = &quot;まだ販売が開始されていません&quot;;</span>
+<span class="nc" id="L131">            logger.severe(message);</span>
+<span class="nc" id="L132">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L133">		} catch (SeatCategoryNotFoundException e) {</span>
+<span class="fc" id="L134">			String message = &quot;座席種別名が正しくありません&quot;;</span>
+<span class="fc" id="L135">            logger.severe(message);</span>
+<span class="fc" id="L136">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L137">		} catch (EventNotFoundException e) {</span>
+<span class="fc" id="L138">            String message = &quot;指定されたイベントが存在しません&quot;;</span>
+<span class="fc" id="L139">            logger.severe(message);</span>
+<span class="fc" id="L140">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

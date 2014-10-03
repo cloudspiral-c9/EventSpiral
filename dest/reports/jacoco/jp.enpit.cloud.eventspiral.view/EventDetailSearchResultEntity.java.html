@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EventDetailSearchResultEntity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">EventDetailSearchResultEntity.java</span></div><h1>EventDetailSearchResultEntity.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+/**
+ * &lt;ol&gt;
+ *   &lt;li&gt;イベント情報を格納するエンティティクラス&lt;/li&gt;
+ * &lt;/ol&gt;
+ * @author s-egawa
+ */
+
+public class EventDetailSearchResultEntity extends AbstractEntity{
+
+	/**
+     * イベント情報
+    */
+	private java.util.List&lt;EventDetailEntity&gt; list;
+
+	/**
+     * イベント件数
+    */
+	private int	totalCount;
+
+	/**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L25">	public EventDetailSearchResultEntity(){</span>
+<span class="fc" id="L26">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント情報を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return イベント情報（EventDetailEntityオブジェクト）のリスト
+	 */
+
+	public java.util.List&lt;EventDetailEntity&gt; getList() {
+<span class="fc" id="L36">		return list;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント情報をフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param list イベント情報（EventDetailEntityオブジェクト）のリスト
+	 */
+	public void setList(java.util.List&lt;EventDetailEntity&gt; list) {
+<span class="fc" id="L46">		this.list = list;</span>
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント件数を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return イベント件数
+	 */
+	public int getTotalCount() {
+<span class="fc" id="L56">		return totalCount;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント件数をフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param totalCount イベント件数
+	 */
+	public void setTotalCount(int totalCount) {
+<span class="fc" id="L66">		this.totalCount = totalCount;</span>
+<span class="fc" id="L67">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

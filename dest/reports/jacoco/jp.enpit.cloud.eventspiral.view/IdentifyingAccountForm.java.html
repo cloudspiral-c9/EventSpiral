@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IdentifyingAccountForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">IdentifyingAccountForm.java</span></div><h1>IdentifyingAccountForm.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+import javax.validation.constraints.Pattern;
+
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * &lt;ol&gt;
+ *   &lt;li&gt;ログイン及びアカウント登録時に利用されるエンティティクラス&lt;/li&gt;
+ * &lt;/ol&gt;
+ */
+public class IdentifyingAccountForm extends AbstractForm{
+	/**
+         * ユーザID．
+         * チェック項目は以下の通り．
+         * &lt;ul&gt;
+         *   &lt;li&gt;長さが4文字以上，12文字以下であるか．&lt;/li&gt;
+         *   &lt;li&gt;空文字ではない．&lt;/li&gt;
+         *   &lt;li&gt;英数字のみが利用されているか．&lt;/li&gt;
+         * &lt;/ul&gt;
+	 */
+	@Length(min=4, max=12, message=&quot;ユーザIDには4から12文字の英数字のみが利用できます&quot;)
+	@Pattern(regexp=&quot;^[a-zA-Z0-9]*$&quot;, message=&quot;ユーザIDには4から12文字の英数字のみが利用できます&quot;)
+	@NotEmpty(message=&quot;ユーザIDには4から12文字の英数字のみが利用できます&quot;)
+	private String userId;
+	
+	/**
+         * パスワード．
+         * チェック項目は以下の通り．
+         * &lt;ul&gt;
+         *   &lt;li&gt;長さが4文字以上，12文字以下であるか．&lt;/li&gt;
+         *   &lt;li&gt;空文字ではない．&lt;/li&gt;
+         *   &lt;li&gt;英数字のみが利用されているか．&lt;/li&gt;
+         * &lt;/ul&gt;
+	 */
+	@Length(min=4, max=12, message=&quot;パスワードには4から12文字の英数字のみが利用できます&quot;)
+	@Pattern(regexp=&quot;^[a-zA-Z0-9]*$&quot;, message=&quot;パスワードには4から12文字の英数字のみが利用できます&quot;)
+	@NotEmpty(message=&quot;ユーザIDには4から12文字の英数字のみが利用できます&quot;)
+	private String pass;
+	
+	/**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L46">	public IdentifyingAccountForm(){</span>
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;userId、passをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	public IdentifyingAccountForm(String userId, String pass) {
+		this.userId = userId;
+		this.pass = pass;
+	}
+	 */
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;パスワードを取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return パスワード
+	 */
+	public String getPass() {
+<span class="fc" id="L66">		return pass;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;ユーザIDを取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return ユーザID
+	 */
+	public String getUserId() {
+<span class="fc" id="L76">		return userId;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;パスワードをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param pass パスワード
+	 */
+	public void setPass(String pass) {
+<span class="fc" id="L86">		this.pass = DBUtils.sanitize(pass);</span>
+<span class="fc" id="L87">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;ユーザIDをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param userId ユーザID
+	 */
+	public void setUserId(String userId) {
+<span class="fc" id="L96">		this.userId = DBUtils.sanitize(userId);</span>
+<span class="fc" id="L97">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

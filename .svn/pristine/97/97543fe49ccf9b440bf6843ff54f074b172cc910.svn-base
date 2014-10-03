@@ -1,0 +1,123 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import static org.junit.Assert.*;
+import jp.enpit.cloud.eventspiral.testutil.AccountInitializer;
+
+import org.junit.Test;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+
+/**
+ * UC: ログインする．<br/>
+ *   testAuthenticate01(): 正常系．<br/>
+ *   testAuthenticate02(): パスワード間違い．<br/>
+ *   testAuthenticate03(): ユーザが存在しない．<br/>
+ * UC: 一般ユーザを登録する．<br/>
+ *   testRegisterUser01(): 正常系．<br/>
+ *   testRegisterUser02(): すでに存在するuserId．<br/>
+ * TODO:
+ *   正常系は，user1以外のテストも追加すべきかも知れない．
+ *
+ * @author y-takata
+ */
+public class AccountModelTest {
+
+	/**
+	 * アカウント認証成功 <br/>
+	 * 対象: {@link AccountModel#authenticate} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録済みの一般ユーザを表す {@link IdentifyingAccountForm}
+	 *       (userId: "user1", pass: "pass1") <br/>
+	 * 期待する結果: 戻り値である{@link Account}が<code>null</code>でない．<br/>
+	 */
+	@Test
+	public void testAuthenticate01() throws Exception {
+		AccountInitializer.initDB(); // accountコレクションの初期化
+		AccountModel accountModel = new AccountModel();
+		Account account = accountModel.authenticate("user1", "pass1");
+		assertNotNull(account);
+	}
+	
+	/**
+	 * アカウント認証失敗（パスワード間違い） <br/>
+	 * 対象: {@link AccountModel#authenticate} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録済みの一般ユーザを表す {@link IdentifyingAccountForm}．
+	 *       ただしpassが誤っている．
+	 *       (userId: "user1", pass: "fuga") <br/>
+	 * 期待する結果: {@link AuthenticationFailureException}が発生する． <br/>
+	 */
+	@Test(expected = AuthenticationFailureException.class)
+	public void testAuthenticate02() throws Exception {
+		AccountInitializer.initDB(); // accountコレクションの初期化
+		AccountModel accountModel = new AccountModel();
+		accountModel.authenticate("user1", "fuga");
+	}
+
+	/**
+	 * アカウント認証失敗（ユーザが存在しない） <br/>
+	 * 対象: {@link AccountModel#authenticate} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録されていない一般ユーザを表す {@link IdentifyingAccountForm}．
+	 *       (userId: "userx", pass: "pass1") <br/>
+	 * 期待する結果: {@link AuthenticationFailureException}が発生する． <br/>
+	 */
+	@Test(expected = AuthenticationFailureException.class)
+	public void testAuthenticate03() throws Exception {
+		AccountInitializer.initDB(); // accountコレクションの初期化
+		AccountModel accountModel = new AccountModel();
+		accountModel.authenticate("userx", "pass1");
+	}
+
+	/**
+	 * 正常系 <br/>
+	 * 対象: {@link AccountModel#registerUser} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録されないuserIdと任意のpass
+	 *       (userId: "hogehoge", pass: "fugafuga") <br/>
+	 * 期待する結果: 事後条件として，accountコレクションの上記ユーザIDに
+	 *       対するドキュメントのpass, role, sessionIdフィールドがそれぞれ，
+	 *       上記pass文字列("fugafuga"), "user", 空文字列．<br/>
+	 */
+	@Test
+	public void testRegisterUser01() throws Exception {
+		AccountInitializer.initDB(); // DB初期化
+		String userId = "hogehoge";
+		String pass   = "fugafuga";
+		AccountModel sut = new AccountModel();
+		sut.registerUser(userId, pass);
+
+		// 正常に登録できたかDBで確認
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("account");
+		DBObject query = new BasicDBObject();
+		query.put("userId", userId);
+		DBObject result = coll.findOne(query);
+		assertEquals(pass,   result.get("pass"));
+		assertEquals("user", result.get("role"));
+//		assertEquals("",     result.get("sessionId"));
+	}
+
+	/**
+	 * 例外：既に存在するユーザID <br/>
+	 * 対象: {@link AccountModel#registerUser} <br/>
+	 * 条件: {@link AccountInitializer#initDB} でDBを初期化済み．
+	 *       引数は，初期化で登録済みのuserIdと任意のpass
+	 *       (userId: "user1", pass: "fugafuga") <br/>
+	 * 期待する結果: {@link AccountAlreadyRegisteredException} が発生する． <br/>
+	 */
+	@Test(expected = AccountAlreadyRegisteredException.class)
+	public void testRegisterUser02() throws Exception {
+		AccountInitializer.initDB(); // DB初期化
+		String userId = "user1";
+		String pass   = "fugafuga";
+		AccountModel sut = new AccountModel();
+		sut.registerUser(userId, pass);
+	}
+}

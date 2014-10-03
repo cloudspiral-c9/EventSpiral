@@ -1,0 +1,67 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import java.util.Date;
+
+/**
+ * EventコレクションのModelクラス
+ *
+ * @author ArakiMasato
+ */
+
+public class Event {
+	/**
+	 * イベント名
+	 */
+	private String eventName;
+	/**
+	 * イベント開催日時
+	 */
+	private Date eventDate;
+	/**
+	 * イベントID
+	 */
+	private String eventId;
+	/**
+	 * チケット販売開始日時
+	 */
+	private Date ticketStartDate;
+	/**
+	 * 説明
+	 */
+	private String description;
+	/**
+	 * デフォルトコンストラクタ
+	 */
+	public Event() {
+	}
+	public String getEventName() {
+		return eventName;
+	}
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
+	public Date getEventDate() {
+		return eventDate;
+	}
+	public void setEventDate(Date eventDate) {
+		this.eventDate = eventDate;
+	}
+	public String getEventId() {
+		return eventId;
+	}
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
+	public Date getTicketStartDate() {
+		return ticketStartDate;
+	}
+	public void setTicketStartDate(Date ticketStartDate) {
+		this.ticketStartDate = ticketStartDate;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+}

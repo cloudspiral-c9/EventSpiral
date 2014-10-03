@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Session.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral</a> &gt; <span class="el_source">Session.java</span></div><h1>Session.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral;
+
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import org.directwebremoting.WebContext;
+import org.directwebremoting.WebContextFactory;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+
+/**
+ * セッションオブジェクト管理のためのクラス.
+ * セッションオブジェクト＝{セッションID，ログイン済みユーザ名}のペア.
+ *
+ * @author shinsuke-m
+ *
+ */
+public class Session {
+<span class="fc" id="L26">	private final String DB_SESSION_COLLECTION = &quot;account&quot;;</span>
+
+	/**
+	 * Loggerオブジェクト
+	 */
+	private Logger logger;
+
+	/**
+	 * DBオブジェクト
+	 */
+	private DB db;
+
+	/**
+	 * DBCollectionオブジェクト
+	 */
+	private DBCollection coll;
+
+	/**
+	 * Logger、DB、DBCollectionフィールドに各オブジェクトを設定する．
+	 */
+<span class="fc" id="L46">	public Session() {</span>
+<span class="fc" id="L47">		logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L48">		db = DBUtils.getInstance().getDb();</span>
+<span class="fc" id="L49">		coll = db.getCollection(DB_SESSION_COLLECTION);</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * 現在ログインしているアカウント情報を取得する.
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;DWRの発行するSessionIdを取得する．&lt;/li&gt;
+	 *   &lt;li&gt;sessionIdをキーにして、データベースを検索する()．&lt;/li&gt;
+	 *     {@code db.account.findOne({ &quot;sessionId&quot; : sessionId })}
+	 *   &lt;li&gt;データがヒットしなかった場合、NotLoggedInExceptionを投げる．&lt;/li&gt;
+	 *   &lt;li&gt;Accountオブジェクトを生成して、データベースの検索結果をアタッチする&lt;/li&gt;
+	 *   &lt;li&gt;Accountオブジェクトを返す．&lt;/li&gt;
+	 *   &lt;li&gt;&lt;tt&gt;MongoException&lt;/tt&gt;が発生した場合：
+	 *     &lt;ol&gt;
+	 *       &lt;li&gt;発生した例外を&lt;tt&gt;TEMFatalException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *     &lt;/ol&gt;
+	 *   &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return sessionIdに対応するアカウント情報（Accountオブジェクト）
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws NotLoggedInException セッションIDが登録されていない場合．
+	 */
+	public Account getCurrentAccount() throws TEMFatalException, NotLoggedInException {
+<span class="fc" id="L72">		logger.info(&quot;Session.getCurrentAccount&quot;);</span>
+
+		// DWRの発行するSessionIdの取得
+<span class="fc" id="L75">		String sessionId = getSessionId();</span>
+
+		// クエリの作成
+<span class="fc" id="L78">		DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L79">		query.put(&quot;sessionId&quot;, sessionId);</span>
+
+		try {
+			// セッションがDBに登録されている＝ログイン
+<span class="fc" id="L83">			DBObject result = coll.findOne(query);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">			if (result == null) {</span>
+<span class="fc" id="L85">				String msg = &quot;SessionId:&quot; + sessionId + &quot; does not logged in.&quot;;</span>
+<span class="fc" id="L86">				logger.warning(msg);</span>
+<span class="fc" id="L87">				throw new NotLoggedInException(msg);</span>
+			}
+<span class="fc" id="L89">			Account account = new Account();</span>
+<span class="fc" id="L90">			DBUtils.attachProperties(account, result);</span>
+<span class="fc" id="L91">			return account;</span>
+<span class="nc" id="L92">		} catch (MongoException e) {</span>
+<span class="nc" id="L93">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L94">			throw new TEMFatalException(e);</span>
+		}
+	}
+
+	/**
+	 * 現在ログインしているセッションIDをデータベースに登録する.
+	 * &lt;ol&gt;
+	 * &lt;li&gt;DWRの発行するSessionIdを取得する．&lt;/li&gt;
+	 * &lt;li&gt;deleteSessionIdを呼び出す．&lt;/li&gt;
+	 * &lt;li&gt;ユーザIDをキーにして、一致するデータのセッションIDを更新する．&lt;/li&gt;
+	 * {@code db.account.update({ &quot;userId&quot; : userId }, { &quot;$set&quot; : { &quot;sessionId&quot; : sessionId }})}
+	 * &lt;li&gt;&lt;tt&gt;MongoException&lt;/tt&gt;が発生した場合：
+	 *   &lt;ol&gt;
+	 *     &lt;li&gt;発生した例外を&lt;tt&gt;TEMFatalException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *   &lt;/ol&gt;
+	 * &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param userId ユーザID
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws NotLoggedInException セッションIDが登録されていない場合．
+	 */
+	public void registerSessionId(String userId) throws TEMFatalException {
+<span class="fc" id="L116">		logger.info(&quot;Session.registerSessionId&quot;);</span>
+
+		// DWRの発行するSessionIdの取得
+<span class="fc" id="L119">		String sessionId = getSessionId();</span>
+
+		// 登録済みのセッションオブジェクトを消す
+<span class="fc" id="L122">		deleteSessionId();</span>
+
+<span class="fc" id="L124">		DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L125">		query.put(&quot;userId&quot;, userId);</span>
+
+<span class="fc" id="L127">		DBObject update = new BasicDBObject();</span>
+<span class="fc" id="L128">		update.put(&quot;$set&quot;, new BasicDBObject(&quot;sessionId&quot;, sessionId));</span>
+
+		// DB登録
+		try {
+<span class="fc" id="L132">			coll.update(query, update);</span>
+<span class="nc" id="L133">		} catch (MongoException e) {</span>
+<span class="nc" id="L134">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L135">			throw new TEMFatalException(e);</span>
+<span class="fc" id="L136">		}</span>
+<span class="fc" id="L137">	}</span>
+
+	/**
+	 * 現在ログインしているセッションIDをデータベースから削除する.
+	 * &lt;ol&gt;
+	 * &lt;li&gt;DWRの発行するSessionIdを取得する．&lt;/li&gt;
+	 * &lt;li&gt;sessionIDをキーにして、一致するデータのセッションIDを消す．&lt;/li&gt;
+	 * {@code db.account.update({ &quot;sessionId&quot; : sessionId }, { &quot;$set&quot; : { &quot;sessionId&quot;, &quot;&quot; }})}
+	 * &lt;li&gt;&lt;tt&gt;MongoException&lt;/tt&gt;が発生した場合：
+	 *   &lt;ol&gt;
+	 *     &lt;li&gt;発生した例外を&lt;tt&gt;TEMFatalException&lt;/tt&gt;にラップして投げる．&lt;/li&gt;
+	 *   &lt;/ol&gt;
+	 * &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @throws TEMFatalException MongoExceptionが発生した場合．
+	 * @throws NotLoggedInException セッションIDが登録されていない場合．
+	 */
+	public void deleteSessionId() throws TEMFatalException {
+<span class="fc" id="L155">		logger.info(&quot;Session.deleteSessionId&quot;);</span>
+
+		// DWRの発行するSessionIdの取得．
+<span class="fc" id="L158">		String sessionId = getSessionId();</span>
+
+		// query
+<span class="fc" id="L161">		DBObject query = new BasicDBObject();</span>
+<span class="fc" id="L162">		query.put(&quot;sessionId&quot;, sessionId);</span>
+
+		// update セッションを空にする．
+<span class="fc" id="L165">		DBObject update = new BasicDBObject();</span>
+<span class="fc" id="L166">		update.put(&quot;$set&quot;, new BasicDBObject(&quot;sessionId&quot;, &quot;&quot;));</span>
+
+		try {
+			// 認証済みの同一セッションを探し全て消す．
+<span class="fc" id="L170">			coll.update(query, update);</span>
+<span class="nc" id="L171">		} catch (MongoException e) {</span>
+<span class="nc" id="L172">			logger.severe(e.getMessage());</span>
+<span class="nc" id="L173">			throw new TEMFatalException(e);</span>
+<span class="fc" id="L174">		}</span>
+<span class="fc" id="L175">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+	 * &lt;li&gt;DWRの発行するSessionIdを取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return セッションID
+	 */
+	private String getSessionId() {
+<span class="fc" id="L184">		WebContext ctx = WebContextFactory.get();</span>
+
+		// ローカルテスト時
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">		if (ctx == null) {</span>
+<span class="fc" id="L188">			return &quot;THIS_IS_A_TEST_SESSION_ID&quot;;</span>
+		}
+
+<span class="nc" id="L191">		return ctx.getScriptSession().getId().split(&quot;/&quot;)[0];</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

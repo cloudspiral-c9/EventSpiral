@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegisteringEventForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">RegisteringEventForm.java</span></div><h1>RegisteringEventForm.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import java.util.Date;
+
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * イベントを登録するときのフォームクラス．
+ * @author s-egawa
+ */
+public class RegisteringEventForm extends AbstractForm{
+
+	/**
+	 * 説明．
+	 * チェック項目は以下の通り．
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;空文字ではない．&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	@NotEmpty(message=&quot;必須項目が未入力です&quot;)
+	private String description;
+
+	/**
+	 * イベント開催日時．
+	 * チェック項目は以下の通り．
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない．&lt;/li&gt;
+	 *   &lt;li&gt;未来の日付である．&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	@NotNull(message=&quot;必須項目が未入力です&quot;)
+	@Future(message=&quot;イベント開催日時は未来の日時を入力してください&quot;)
+	private Date eventDate;
+
+	/**
+	 * イベント名．
+	 * チェック項目は以下の通り．
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;空文字ではない．&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	@NotEmpty(message=&quot;必須項目が未入力です&quot;)
+	private String eventName;
+
+	/**
+	 * チケット販売開始日時．
+	 * チェック項目は以下の通り．
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない．&lt;/li&gt;
+	 *   &lt;li&gt;未来の日付である．&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	@NotNull(message=&quot;必須項目が未入力です&quot;)
+	@Future(message=&quot;チケット販売開始日時は未来の日時を入力してください&quot;)
+	private Date ticketStartDate;
+
+	/**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L65">	public RegisteringEventForm(){</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+	 *   &lt;li&gt;validateのオーバーライド チケット販売日がイベントの開始日の前であることをチェックする． そうでなかった場合は，TEMValidationExceptionにエラーメッセージをセットし，throwする&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return 検証に成功したか否か．基本的に true を返す．falseとなる場合は，返り値が帰る前に TEMValidationExceptionが投げられる．
+	 * @throws TEMFatalException HibernateValiadtorの各制約違反が発生した場合．
+	 */
+	public boolean validate() throws TEMValidationException{
+<span class="fc" id="L76">		super.validate();</span>
+<span class="fc" id="L77">		Date eventDate = this.getEventDate();</span>
+<span class="fc" id="L78">		Date ticketStartDate = this.getTicketStartDate();</span>
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">		if (eventDate.compareTo(ticketStartDate) == 1){</span>
+<span class="fc" id="L81">			return true;</span>
+		}else{
+<span class="nc" id="L83">			throw new TEMValidationException(&quot;チケット販売日時がイベント開催日時より後です&quot;);</span>
+		}
+
+
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;説明を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return 説明
+	 */
+	public String getDescription() {
+<span class="fc" id="L96">		return description;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;descriptionをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param description 説明
+	 */
+	public void setDescription(String description) {
+<span class="fc" id="L106">		this.description = description;</span>
+<span class="fc" id="L107">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント開始日時を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return イベント開始日時
+	 */
+	public Date getEventDate() {
+<span class="fc" id="L116">		return eventDate;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;eventDateをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param eventDate イベント開始日時
+	 */
+	public void setEventDate(Date eventDate) {
+<span class="fc" id="L126">		this.eventDate = eventDate;</span>
+<span class="fc" id="L127">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;イベント名を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return イベント名
+	 */
+	public String getEventName() {
+<span class="fc" id="L136">		return eventName;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;eventNameをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param eventName イベント名
+	 */
+	public void setEventName(String eventName) {
+<span class="fc" id="L146">		this.eventName = eventName;</span>
+<span class="fc" id="L147">	}</span>
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;チケット販売開始日時を取得する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @return チケット販売開始日時
+	 */
+	public Date getTicketStartDate() {
+<span class="fc" id="L156">		return ticketStartDate;</span>
+	}
+
+	/**
+	 * &lt;ol&gt;
+         *   &lt;li&gt;ticketStartDateをフィールドへ登録する．&lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * @param ticketStartDate チケット販売開始日時
+	 */
+	public void setTicketStartDate(Date ticketStartDate) {
+<span class="fc" id="L166">		this.ticketStartDate = ticketStartDate;</span>
+<span class="fc" id="L167">	}</span>
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

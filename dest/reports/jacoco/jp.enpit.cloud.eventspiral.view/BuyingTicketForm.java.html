@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BuyingTicketForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.view</a> &gt; <span class="el_source">BuyingTicketForm.java</span></div><h1>BuyingTicketForm.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.view;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import jp.enpit.cloud.eventspiral.util.DBUtils;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+*
+* チケット購入するときのフォームクラス
+*
+* @author 2014016
+*
+*/
+public class BuyingTicketForm extends AbstractForm{
+
+	/**
+     * イベントID。チェック項目は以下の通り。
+     * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない&lt;/li&gt;
+	 *   &lt;li&gt;空文字ではない&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+	java.lang.String eventId;
+
+    /**
+     * 座席種別
+     * &lt;ul&gt;
+	 *   &lt;li&gt;nullではない&lt;/li&gt;
+	 *   &lt;li&gt;空文字ではない&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+    @NotNull(message=&quot;必須項目が未入力です&quot;)
+    @NotEmpty(message=&quot;必須項目が未入力です&quot;)
+    private String seatName;
+
+    /**
+     * 席数
+     * &lt;ul&gt;
+	 *   &lt;li&gt;1以上であること&lt;/li&gt;
+	 * &lt;/ul&gt;
+     */
+	@Min(value=1L,message=&quot;チケット数には1以上の整数を入力してください。&quot;)
+	private int count;
+
+    /**
+	 * デフォルトコンストラクタ
+	 */
+<span class="fc" id="L53">	public BuyingTicketForm(){</span>
+<span class="fc" id="L54">	}</span>
+
+	/**
+     * イベントIDを取得する
+     * @return イベントID
+     */
+	public java.lang.String getEventId() {
+<span class="fc" id="L61">		return eventId;</span>
+	}
+
+	/**
+     * eventIdをDBUtilsのsanitizeを利用してサニタイズしてから、フィールドを取得する。
+     * @param eventId イベントID
+     */
+	public void setEventId(java.lang.String eventId) {
+<span class="fc" id="L69">		this.eventId = DBUtils.sanitize(eventId);</span>
+<span class="fc" id="L70">	}</span>
+
+	/**
+     * 座席種別を取得す
+     * @return 座席種別
+     */
+	public String getSeatName() {
+<span class="fc" id="L77">		return seatName;</span>
+	}
+
+	/**
+     * seatNameをフィールドへ登録する
+     * @param seatName 座席種別
+     */
+	public void setSeatName(String seatName) {
+<span class="fc" id="L85">		this.seatName = seatName;</span>
+<span class="fc" id="L86">	}</span>
+
+	/**
+     * 席数を取得する
+     * @return 席数
+     */
+    public int getCount() {
+<span class="fc" id="L93">		return count;</span>
+	}
+
+    /**
+     * countをフィールドへ登録する
+     * @param count 席数
+     */
+	public void setCount(int count) {
+<span class="fc" id="L101">		this.count = count;</span>
+<span class="fc" id="L102">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

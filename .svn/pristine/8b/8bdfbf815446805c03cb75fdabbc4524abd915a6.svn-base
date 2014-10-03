@@ -1,0 +1,184 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import static org.junit.Assert.assertEquals;
+
+import java.net.UnknownHostException;
+import java.util.List;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.testutil.EventInitializer;
+
+import org.junit.Test;
+
+/**
+ * UC:イベント一覧の表示 <br />
+ * testGetFutureEvents01(): 正常系. <br />
+ * testGetFutureEvents02(): 正常系. 登録イベントが0件の場合<br />
+ * testGetFutureEvents03(): 正常系．startIndexが境界値<br />
+ * testGetFutureEvents04(): 例外:startIndexが不正<br />
+ * testGetFutureEvents05(): startIndexがイベント数より多い<br />
+ * testGetFutureEvents06(): lengthが不正<br />
+ * testGetFutureEvents07(): lengthがイベント数より多い<br />
+ * 
+ * testGetFutureEventTotalCount01():正常系<br />
+ * testGetFutureEventTotalCount02():正常系.登録イベント数が0件の場合<br />
+ *
+ * @author 2014016
+ *
+ */
+public class EventModelTest {
+
+    /**
+     * イベント取得成功 <br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     *          startIndexが0, lengthが6
+     * 期待する結果: イベント取得件数が6件
+     */
+    @Test
+    public void testGetFutureEvents01() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件の内未来のイベントは6件
+
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(0, 6);
+
+        // 件数の検査
+       assertEquals(6, eventList.size());
+    }
+
+    /**
+     * 正常系:登録イベントが0件の場合 <br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDBN0()関数で初期化.登録イベント0件
+     *          startIndexが0, lengthが0
+     * 期待する結果: イベント取得件数が0件
+     */
+    @Test
+    public void testGetFutureEvents02() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDBN0(); //eventコレクションを初期化. 登録件数0件
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(0, 0);
+        // 件数の検査
+        assertEquals(0, eventList.size());
+    }
+    
+    /**
+     * 正常系:startIndexがイベント数と同じ(境界値)<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     *          startIndexが5, lengthが1
+     * 期待する結果: イベント取得件数が1件
+     */
+    @Test
+    public void testGetFutureEvents03() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(5, 1);
+        // 件数の検査
+        assertEquals(1, eventList.size());
+    }
+
+    /**
+     * 例外: 不正なstartIndex<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+      *         startIndexが-1, lengthが2
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test(expected = TEMFatalException.class)
+    public void testGetFutureEvents04() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        eventModel.getFutureEvents(-1, 2);
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+    /**
+     * startIndexがイベント数より大きい<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     *          startIndexが6, lengthが3
+     * 期待する結果: イベント取得件数が0件
+     */
+    @Test
+    public void testGetFutureEvents05() throws  UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(6, 3);
+        assertEquals(0, eventList.size());
+    }
+
+    /**
+     * 例外: 不正なlength<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     *          startIndexが1, lengthが-2
+     * 期待する結果: {@link TEMFatalException}が発生
+     */
+    @Test
+    public void testGetFutureEvents06()  throws  UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(1,-2);
+        assertEquals(0, eventList.size());
+        // TEMFatalExceptionが発生しなければ失敗
+    }
+
+    /**
+     * lengthがイベント数より大きい<br />
+     * 対象: {@link EventModel#getFutureEvents(int, int)} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     *          startIndexが0, lengthが7
+     * 期待する結果: イベント取得件数が6件
+     */
+    @Test
+    public void testGetFutureEvents07() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        List<Event> eventList = eventModel.getFutureEvents(0, 7);
+        assertEquals(6, eventList.size());
+    }
+
+
+
+
+    /**
+     * 正常系: イベント数取得成功 <br />
+     * 対象: {@link EventModel#getFutureEventTotalCount()} <br />
+     * 条件: EventInitalizerのinitDB()関数で初期化.
+     *          登録8件の内, 現時点(2014/08/05)で未来のイベントは6件
+     * 期待する結果:eventが6件取得できる
+     */
+    @Test
+    public void testGetFutureEventTotalCount01() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDB(); //eventコレクションを初期化．登録件数8件
+        EventModel eventModel = new EventModel();
+        int event_num = eventModel.getFutureEventTotalCount();
+
+        // 件数の検査
+        assertEquals(6, event_num);
+    }
+
+    /**
+     * 正常系: イベント数0 <br />
+     * 対象: {@link EventModel#getFutureEventTotalCount()} <br />
+     * 条件: EventInitalizerのinitDBN0()関数で初期化.
+     * 期待する結果:eventが0件取得できる
+     * @throws Exception
+     */
+    @Test
+    public void testGetFutureEventTotalCount02() throws UnknownHostException, TEMFatalException{
+        EventInitializer.initDBN0(); //eventコレクションを初期化．登録件数0件
+        EventModel eventModel = new EventModel();
+        int event_num = eventModel.getFutureEventTotalCount();
+
+        // 件数の検査
+        assertEquals(0, event_num);
+    }
+}

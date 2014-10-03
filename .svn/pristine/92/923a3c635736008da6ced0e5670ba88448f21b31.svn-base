@@ -1,0 +1,18 @@
+package jp.enpit.cloud.eventspiral.view;
+
+
+public class IdentifyingEventForm extends AbstractForm{
+
+	java.lang.String eventId;
+
+	public IdentifyingEventForm(){
+	}
+
+	public java.lang.String getEventId() {
+		return eventId;
+	}
+
+	public void setEventId(java.lang.String eventId) {
+		this.eventId = eventId;
+	}
+}

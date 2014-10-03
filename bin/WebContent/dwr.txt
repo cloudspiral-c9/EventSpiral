@@ -1,0 +1,99 @@
+--------------------
+[レビュー日時] 2014/8/21 16:38
+[レビュー者] 鷹取 (2014016)
+
+[対象]
+dwr.xml (UC[BuyTicket])
+
+BuyTicketController OK
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventDetail OK
+DisplayEventListController OK
+RegisterEventController OK
+RegisterSeatCategoryController OK
+--------------------
+[レビュー日時] 2014/8/21 13:13
+[レビュー者] 三浦 (2014040)
+
+[対象]
+dwr.xml (UC[DisplayEventDetail])
+
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventDetail OK
+DisplayEventListController OK
+RegisterEventController OK
+RegisterSeatCategoryController OK
+
+--------------------
+[レビュー日時] 2014/8/19 16:54
+[レビュー者] 三浦 (2014040)
+
+[対象]
+dwr.xml (UC[DisplayRegisteredEventList])
+
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventListController OK
+RegisterEventController OK
+RegisterSeatCategoryController OK
+
+--------------------
+[レビュー日時] 2014/8/19 14:20
+[レビュー者] 西 (2014024)
+
+[対象]
+dwr.xml (UC[RegisterEvent])
+
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventListController OK
+RegisterEventController OK
+RegisterSeatCategoryController OK
+--------------------
+[レビュー日時] 2014/8/19 10:50
+[レビュー者] 西 (2014024)
+
+[対象]
+dwr.xml (UC[RegisterEvent])
+
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventListController OK
+RegisterEventController OK
+--------------------
+[レビュー日時] 2014/8/18 15:17
+[レビュー者] 三浦 (2014040)
+
+[対象]
+dwr.xml (UC[SignUpPromoter])
+
+SignUpController OK
+SignUpPromoterController OK
+LoginController OK
+LogoutController OK
+DisplayEventListController OK
+
+
+--------------------
+[レビュー日時] 2014/7/25 16:29
+[レビュー者] 西 (2014024)
+
+[対象]
+dwr.xml
+
+SignUpController OK
+LoginController OK
+LogoutController OK
+DisplayEventListController OK

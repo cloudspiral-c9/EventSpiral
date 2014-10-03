@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DisplayEventDetailController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Event Spiral Coverage by JaCoCo</a> &gt; <a href="index.html" class="el_package">jp.enpit.cloud.eventspiral.controller</a> &gt; <span class="el_source">DisplayEventDetailController.java</span></div><h1>DisplayEventDetailController.java</h1><pre class="source lang-java linenums">package jp.enpit.cloud.eventspiral.controller;
+
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import jp.enpit.cloud.eventspiral.Session;
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.model.Account;
+import jp.enpit.cloud.eventspiral.model.Event;
+import jp.enpit.cloud.eventspiral.model.EventModel;
+import jp.enpit.cloud.eventspiral.model.EventNotFoundException;
+import jp.enpit.cloud.eventspiral.model.NotLoggedInException;
+import jp.enpit.cloud.eventspiral.model.SeatCategory;
+import jp.enpit.cloud.eventspiral.model.TicketModel;
+import jp.enpit.cloud.eventspiral.util.ConversionUtils;
+import jp.enpit.cloud.eventspiral.view.EventDetailEntity;
+import jp.enpit.cloud.eventspiral.view.IdentifyingEventForm;
+import jp.enpit.cloud.eventspiral.view.SeatCategoryEntity;
+import jp.enpit.cloud.eventspiral.view.TEMViewException;
+
+/**
+ * DWRから呼び出されるイベント詳細情報表示処理のコントローラークラス
+ *
+ * @author s-egawa(2014001)
+ */
+public class DisplayEventDetailController {
+	/**
+     * Loggerオブジェクト
+     */
+    private Logger logger;
+
+
+    /**
+     * Loggerフィールドにオブジェクトを設定する．
+     */
+<span class="fc" id="L36">    public DisplayEventDetailController() {</span>
+<span class="fc" id="L37">        logger = Logger.getLogger(getClass().getName());</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * DWRより呼び出されるイベント詳細表示のコントローラーメソッド.
+     *
+     * @param form IdentifyingEventFormオブジェクト
+     * @return イベント詳細情報
+     * @throws TEMViewException - TEMFatalException,EventNotFoundExceptionが発生した場合．
+     * @throws NotLoggedInException
+     */
+    public EventDetailEntity execute(IdentifyingEventForm form) throws TEMViewException, NotLoggedInException {
+
+<span class="fc" id="L50">        logger.info(&quot;DisplayEventDetailController.execute&quot;);</span>
+
+        //formデータをバリデートする．
+<span class="fc" id="L53">        form.validate();</span>
+
+        try{
+        	//EventModelクラスのgetEvent()を呼び出し、イベント情報を取得し，EventDetailEntityオブジェクトに設定する
+<span class="fc" id="L57">            EventModel eventModel = new EventModel();</span>
+<span class="fc" id="L58">            EventDetailEntity entity = new EventDetailEntity();</span>
+<span class="fc" id="L59">            Event event = eventModel.getEvent(form.getEventId());</span>
+<span class="fc" id="L60">       	 	ConversionUtils.convert(entity, event);</span>
+
+            //TicketModelクラスのgetRemainSeatCategories()を呼び出し、座席種別ごとの残席数を取得する．
+<span class="fc" id="L63">            TicketModel ticketModel = new TicketModel();</span>
+<span class="fc" id="L64">            java.util.List&lt;SeatCategory&gt; remainSeatList = ticketModel.getRemainSeatCategories(event);</span>
+
+            //残席数をSeatCategoryEntityオブジェクトに設定し，EventDetailEntityオブジェクトに登録する．
+<span class="fc" id="L67">            java.util.List&lt;SeatCategoryEntity&gt; remainSeatEntityList = new ArrayList&lt;SeatCategoryEntity&gt;();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            for (SeatCategory remainSeat: remainSeatList){</span>
+<span class="fc" id="L69">            	SeatCategoryEntity remainSeatEntity = new SeatCategoryEntity();</span>
+<span class="fc" id="L70">            	ConversionUtils.convert(remainSeatEntity, remainSeat);</span>
+<span class="fc" id="L71">            	remainSeatEntityList.add(remainSeatEntity);</span>
+<span class="fc" id="L72">            }</span>
+<span class="fc" id="L73">            entity.setRemainSeats(remainSeatEntityList);</span>
+
+            //SessionクラスのgetCurrentAccount()を呼び出し、ユーザがログインしているか確認すると同時にユーザ情報（Accountオブジェクト）を取得する．
+<span class="fc" id="L76">            Session session = new Session();</span>
+<span class="fc" id="L77">            Account account = new Account();</span>
+            try{
+<span class="fc" id="L79">            	account = session.getCurrentAccount();</span>
+<span class="fc" id="L80">            }catch(NotLoggedInException e){// ここでNotLoggedInExceptionが発生した場合、EventDetailEntityオブジェクトをvalidate後にreturnして終了．</span>
+<span class="fc" id="L81">            	entity.validate();</span>
+<span class="fc" id="L82">            	return entity;</span>
+<span class="fc" id="L83">            }</span>
+
+            //TicketModelクラスのgetBoughtSeatCategories()を呼び出し、座席種別ごとのチケット購入数を取得する．
+<span class="fc" id="L86">            java.util.List&lt;SeatCategory&gt; boughtSeatList = ticketModel.getBoughtSeatCategories(event, account.getUserId());</span>
+
+            //チケット購入数をEventDetailEntityオブジェクトに設定する．
+<span class="fc" id="L89">            java.util.List&lt;SeatCategoryEntity&gt; boughtSeatEntityList = new ArrayList&lt;SeatCategoryEntity&gt;();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            for (SeatCategory boughtSeat: boughtSeatList){</span>
+<span class="fc" id="L91">            	SeatCategoryEntity boughtSeatEntity = new SeatCategoryEntity();</span>
+<span class="fc" id="L92">            	ConversionUtils.convert(boughtSeatEntity, boughtSeat);</span>
+<span class="fc" id="L93">            	boughtSeatEntityList.add(boughtSeatEntity);</span>
+<span class="fc" id="L94">            }</span>
+<span class="fc" id="L95">            entity.setBoughtSeats(boughtSeatEntityList);</span>
+
+            //EventDetailEntityオブジェクトをバリデートする．
+<span class="fc" id="L98">            entity.validate();</span>
+
+            //EventDetailEntityオブジェクト(イベント詳細情報)を返す．
+<span class="fc" id="L101">            return entity;</span>
+
+<span class="nc" id="L103">        } catch (TEMFatalException e){</span>
+<span class="nc" id="L104">            String message = &quot;システムエラーが発生しました。管理者に連絡してください。&quot;;</span>
+<span class="nc" id="L105">            logger.severe(message);</span>
+<span class="nc" id="L106">            throw new TEMViewException(message, e);</span>
+<span class="fc" id="L107">        } catch (EventNotFoundException e) {</span>
+<span class="fc" id="L108">            String message = &quot;指定されたイベントが存在しません&quot;;</span>
+<span class="fc" id="L109">            logger.severe(message);</span>
+<span class="fc" id="L110">            throw new TEMViewException(message, e);</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.2.20130117-1802</span></div></body></html>

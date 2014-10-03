@@ -1,0 +1,273 @@
+package jp.enpit.cloud.eventspiral.model;
+
+import static org.junit.Assert.*;
+
+import java.net.UnknownHostException;
+import java.util.List;
+
+import jp.enpit.cloud.eventspiral.TEMFatalException;
+import jp.enpit.cloud.eventspiral.testutil.AccountInitializer;
+import jp.enpit.cloud.eventspiral.testutil.EventInitializer;
+import jp.enpit.cloud.eventspiral.testutil.TicketInitializer;
+
+import org.junit.Test;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+/**
+ * UC:イベントの座席種別情報を登録する <br />
+ * testGenerateTickets01(): 正常系. <br />
+ * testGenerateTickets02(): 正常系. <br />
+ * testGenerateTickets03(): 正常系. <br />
+ *
+ * testGetRemainSeatCategories01(): 正常系: イベント1件、座席種別1件、チケット数100
+ * testGetRemainSeatCategories02(): 正常系: イベント1件、座席種別5件、チケット数それぞれ100
+ * testGetRemainSeatCategories03(): 正常系: イベント1件、座席種別0件
+ *
+ * @author 2014001(s-egawa)
+ * @author 2014040 (a-miura)
+ *
+ */
+
+public class TicketModelTest {
+
+	/**
+     * 正常系: チケット1件登録<br />
+     * 対象: {@link TicketModel#generateTickets(Event, SeatCategory)} <br />
+     * 条件: {@link TicketInitializer#initDBN0} でDBを初期化済み．
+     * 期待する結果: データベースに登録されたチケットの件数が1
+	 * @throws UnknownHostException
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGenerateTickets01() throws UnknownHostException, TEMFatalException {
+		TicketInitializer.initDBN0();
+		TicketModel ticketModel = new TicketModel();
+
+		//イベント情報と座席数を設定しチケットを作成
+		Event event = new Event();
+		event.setEventId("0001");
+		event.setEventName("event1");
+		event.setEventDate(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0));
+		event.setTicketStartDate(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0));
+
+		SeatCategory seat = new SeatCategory();
+		seat.setCount(1); //座席数1 = チケット数1
+		seat.setFee(1000);
+		seat.setSeatName("A");
+
+		ticketModel.generateTickets(event, seat);
+
+		//DBを確認し正しくチケットが登録されているか調べる
+		MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("ticket");
+		DBObject query = new BasicDBObject();
+		query.put("eventId", "0001");
+		DBCursor result = coll.find(query);
+		assertEquals(1,result.count()); //1件だけ登録されているはず
+
+		//チケットの情報を確認
+		for(DBObject dbo : result){
+			assertEquals("event1", dbo.get("eventName"));
+			assertEquals(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0), dbo.get("eventDate"));
+			assertEquals(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0), dbo.get("ticketStartDate"));
+			assertEquals(1000, dbo.get("fee"));
+			assertEquals("A", dbo.get("seatName"));
+			assertEquals("blank", dbo.get("status"));
+		}
+	}
+
+	/**
+     * 正常系: チケット5件登録<br />
+     * 対象: {@link TicketModel#generateTickets(Event, SeatCategory)} <br />
+     * 条件: {@link TicketInitializer#initDBN0} でDBを初期化済み．
+     * 期待する結果: データベースに登録されたチケットの件数が5
+	 * @throws UnknownHostException
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGenerateTickets02() throws UnknownHostException, TEMFatalException {
+		TicketInitializer.initDBN0();
+		TicketModel ticketModel = new TicketModel();
+
+		//イベント情報と座席数を設定しチケットを作成
+		Event event = new Event();
+		event.setEventId("0001");
+		event.setEventName("event1");
+		event.setEventDate(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0));
+		event.setTicketStartDate(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0));
+
+		SeatCategory seat = new SeatCategory();
+		seat.setCount(5);
+		seat.setFee(1000);
+		seat.setSeatName("A");
+
+		ticketModel.generateTickets(event, seat);
+
+		//DBを確認し正しくチケットが登録されているか調べる
+		MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("ticket");
+		DBObject query = new BasicDBObject();
+		query.put("eventId", "0001");
+		DBCursor result = coll.find(query);
+		assertEquals(5,result.count());
+
+		//チケットの情報を確認
+		for(DBObject dbo : result){
+			assertEquals("event1", dbo.get("eventName"));
+			assertEquals(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0), dbo.get("eventDate"));
+			assertEquals(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0), dbo.get("ticketStartDate"));
+			assertEquals(1000, dbo.get("fee"));
+			assertEquals("A", dbo.get("seatName"));
+			assertEquals("blank", dbo.get("status"));
+		}
+	}
+
+	/**
+     * 正常系: チケット10件登録<br />
+     * 対象: {@link TicketModel#generateTickets(Event, SeatCategory)} <br />
+     * 条件: {@link TicketInitializer#initDBN0} でDBを初期化済み．
+     * 期待する結果: データベースに登録されたチケットの件数が5
+	 * @throws UnknownHostException
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGenerateTickets03() throws UnknownHostException, TEMFatalException {
+		TicketInitializer.initDBN0();
+		TicketModel ticketModel = new TicketModel();
+
+		//イベント情報と座席数を設定しチケットを作成
+		Event event = new Event();
+		event.setEventId("0001");
+		event.setEventName("event1");
+		event.setEventDate(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0));
+		event.setTicketStartDate(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0));
+
+		SeatCategory seat = new SeatCategory();
+		seat.setCount(10);
+		seat.setFee(1000);
+		seat.setSeatName("A");
+
+		ticketModel.generateTickets(event, seat);
+
+		//DBを確認し正しくチケットが登録されているか調べる
+		MongoClient mongo = new MongoClient("localhost", 27017);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("ticket");
+		DBObject query = new BasicDBObject();
+		query.put("eventId", "0001");
+		DBCursor result = coll.find(query);
+		assertEquals(10,result.count());
+
+		//チケットの情報を確認
+		for(DBObject dbo : result){
+			assertEquals("event1", dbo.get("eventName"));
+			assertEquals(TicketInitializer.newDate(2014, 10, 1, 12, 0, 0), dbo.get("eventDate"));
+			assertEquals(TicketInitializer.newDate(2014, 9, 1, 12, 0, 0), dbo.get("ticketStartDate"));
+			assertEquals(1000, dbo.get("fee"));
+			assertEquals("A", dbo.get("seatName"));
+			assertEquals("blank", dbo.get("status"));
+		}
+	}
+
+
+	/**
+     * 正常系: イベント1件、座席種別1件、チケット数100<br />
+     * 対象: {@link TicketModel#getRemainSeatCategory(Event)} <br />
+     * 条件: アカウント情報、イベント情報、座席種別情報を初期化
+     *      興行主アカウントでイベントを1つ追加し、そのイベントIDで座席情報を1つ追加し、チケットを生成する
+     * 期待する結果: getRemainSeatCategoriesメソッドがSeatCategoryのリストを返し、
+     *            サイズは1、登録した通りの座席情報が得られる
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGetRemainSeatCategories01() throws Exception {
+		AccountInitializer.initDB();
+		EventInitializer.initDBN0();
+		TicketInitializer.initDBN0();
+
+		EventModel eventModel = new EventModel();
+		Event event = eventModel.registerEvent("event1", TicketInitializer.dayAfter(2),
+				                               TicketInitializer.dayAfter(1),
+				                               "desc1", "promoter1");
+		SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+
+		TicketModel ticketModel = new TicketModel();
+		ticketModel.generateTickets(event,  category);
+
+		List<SeatCategory> list = ticketModel.getRemainSeatCategories(event);
+		assertEquals(1, list.size());
+		SeatCategory remain = list.get(0);
+		assertEquals("A", remain.getSeatName());
+		assertEquals(100, remain.getCount());
+		assertEquals(2000, remain.getFee());
+	}
+
+	/**
+     * 正常系: イベント1件、座席種別5件、チケット数それぞれ100<br />
+     * 対象: {@link TicketModel#getRemainSeatCategory(Event)} <br />
+     * 条件: アカウント情報、イベント情報、座席種別情報を初期化
+     *      興行主アカウントでイベントを1つ追加し、そのイベントIDで座席情報を5つ追加し、チケットを生成する
+     * 期待する結果: getRemainSeatCategoriesメソッドがSeatCategoryのリストを返し、
+     *            5件の座席情報が取得される
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGetRemainSeatCategories02() throws Exception {
+		AccountInitializer.initDB();
+		EventInitializer.initDBN0();
+		TicketInitializer.initDBN0();
+
+		EventModel eventModel = new EventModel();
+		Event event = eventModel.registerEvent("event1", TicketInitializer.dayAfter(2),
+				                               TicketInitializer.dayAfter(1),
+				                               "desc1", "promoter1");
+		TicketModel ticketModel = new TicketModel();
+		SeatCategory category = eventModel.registerSeatCategory(event.getEventId(), "A", 100, 2000);
+		ticketModel.generateTickets(event,  category);
+		category = eventModel.registerSeatCategory(event.getEventId(), "B", 100, 2000);
+		ticketModel.generateTickets(event,  category);
+		category = eventModel.registerSeatCategory(event.getEventId(), "C", 100, 2000);
+		ticketModel.generateTickets(event,  category);
+		category = eventModel.registerSeatCategory(event.getEventId(), "D", 100, 2000);
+		ticketModel.generateTickets(event,  category);
+		category = eventModel.registerSeatCategory(event.getEventId(), "E", 100, 2000);
+		ticketModel.generateTickets(event,  category);
+
+
+		List<SeatCategory> list = ticketModel.getRemainSeatCategories(event);
+		assertEquals(5, list.size());
+	}
+
+	/**
+     * 正常系: イベント1件、座席種別0件<br />
+     * 対象: {@link TicketModel#getRemainSeatCategory(Event)} <br />
+     * 条件: アカウント情報、イベント情報、座席種別情報を初期化
+     *      興行主アカウントでイベントを1つ追加しするが、座席情報を登録していない状態
+     * 期待する結果: getRemainSeatCategoriesメソッドが空のリストを返す
+	 * @throws TEMFatalException
+     */
+	@Test
+	public void testGetRemainSeatCategories03() throws Exception {
+		AccountInitializer.initDB();
+		EventInitializer.initDBN0();
+		TicketInitializer.initDBN0();
+
+		EventModel eventModel = new EventModel();
+		Event event = eventModel.registerEvent("event1", TicketInitializer.dayAfter(2),
+				                               TicketInitializer.dayAfter(1),
+				                               "desc1", "promoter1");
+
+		TicketModel ticketModel = new TicketModel();
+		List<SeatCategory> list = ticketModel.getRemainSeatCategories(event);
+		assertEquals(0, list.size());
+	}
+
+}

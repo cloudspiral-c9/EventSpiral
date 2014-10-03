@@ -1,0 +1,152 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+
+public class EventDetailEntity extends AbstractEntity {
+
+    /**
+     * イベントID
+     */
+    @NotNull
+    @NotEmpty
+    private String eventId;
+
+    /**
+     * イベント名
+     */
+    @NotNull
+    @NotEmpty
+    private String eventName;
+
+    /**
+     * イベント開催日時
+     */
+    @NotNull
+    private Date eventDate;
+
+    /**
+     * チケット販売開始日時
+     */
+    @NotNull
+    private Date ticketStartDate;
+
+    /**
+     * 説明
+     */
+    @NotNull
+    @NotEmpty
+    private String description;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public EventDetailEntity() {
+
+    }
+
+    /**
+     * <ol>
+     *  <li>イベントIDを取得する</li>
+     *</ol>
+     * @return イベントID
+     */
+    public String getEventId() {
+        return eventId;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventIdをフィールドへ登録する</li>
+     * </ol>
+     * @param eventId イベントId
+     */
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    /**
+     * <ol>
+     *  <li>イベント名を取得する</li>
+     *</ol>
+     * @return イベント名
+     */
+    public String getEventName() {
+        return eventName;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventNameをフィールドへ登録する</li>
+     * </ol>
+     * @param eventName イベント名
+     */
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    /**
+     * <ol>
+     *  <li>イベント開催日時を取得する</li>
+     *</ol>
+     * @return イベント開催日時
+     */
+    public Date getEventDate() {
+        return eventDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventDateをフィールドへ登録する</li>
+     * </ol>
+     * @param eventDate イベント開催日時
+     */
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>チケット販売開始日時を取得する</li>
+     *</ol>
+     * @return チケット販売開始日時
+     */
+    public Date getTicketStartDate() {
+        return ticketStartDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>ticketStartDateをフィールドへ登録する</li>
+     * </ol>
+     * @param ticketStasrtDate チケット販売開始日時
+     */
+    public void setTicketStartDate(Date ticketStartDate) {
+        this.ticketStartDate = ticketStartDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>説明を取得する</li>
+     *</ol>
+     * @return 説明
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * <ol>
+     *  <li>descriptionをフィールドへ登録する</li>
+     * </ol>
+     * @param description 説明
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+}

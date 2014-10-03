@@ -1,0 +1,154 @@
+package jp.enpit.cloud.eventspiral.testutil;
+
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import com.mongodb.*;
+
+/**
+ * DBのeventコレクションを初期化するユーティリティクラス．
+ * @author y-takata
+ * @author 2014043
+ * @author 2014040 (a-miura)
+ *
+ */
+public class EventInitializer {
+	private static String host = "localhost:27017";
+
+	/**
+	 * DB接続先ホストを設定する．
+	 * @param host ホスト名[:ポート番号]
+	 */
+	public static void setHost(String host) {
+		EventInitializer.host = host;
+	}
+
+	/**
+	 * DBに接続し，eventコレクションの中身を空にする．
+	 * 接続ホストは，デフォルトでは "localhost:27017"．
+	 * {@link #setHost} を使って変更できる．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	private static DBCollection initEventColl() throws UnknownHostException {
+        MongoClient mongo = new MongoClient(host);
+        DB db = mongo.getDB("tem");
+		DBCollection coll = db.getCollection("event");
+		coll.drop(); // 中身を消去
+		return coll;
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数0件．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBN0() throws UnknownHostException {
+		initEventColl();
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数1件．
+	 * ただし，2013年以前のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBOld1() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "000000000000000000000002", "Cloud Spiral 2013",
+			newDate(2013, 6, 1, 12, 0, 0), // 2013年6月1日12時JST
+			newDate(2012, 6, 1, 12, 0, 0), // 2012年6月1日12時JST
+			"2013年のイベント", "promoter2013"
+		);
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数1件．
+	 * ただし，2014年10月以降のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDBNew1() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "000000000000000000000003", "Cloud Spiral 2014",
+			newDate(2014, 10, 1, 12, 0, 0), // 2014年10月1日12時JST
+			newDate(2013, 10, 1, 12, 0, 0), // 2013年10月1日12時JST
+			"2014年のイベント", "promoter2014"
+		);
+	}
+
+	/**
+	 * eventコレクションを初期化．登録件数件．
+	 * うち，2件は2013年以前のイベント．残り6件は2014年10月以降のイベント．
+	 * @throws UnknownHostException 接続先ホスト名を解決できない．
+	 */
+	public static void initDB() throws UnknownHostException {
+		DBCollection coll = initEventColl();
+		addEvent(coll, "000000000000000000000001", "Cloud Spiral 2012",
+				newDate(2012, 1, 1, 12, 0, 0), // 2012年1月1日12時JST
+				newDate(2011, 1, 1, 12, 0, 0), // 2011年1月1日12時JST
+				"2012年のイベント", "promoter2012"
+			);
+			addEvent(coll, "000000000000000000000002", "Cloud Spiral 2013",
+				newDate(2013, 6, 1, 12, 0, 0), // 2013年6月1日12時JST
+				newDate(2012, 6, 1, 12, 0, 0), // 2012年6月1日12時JST
+				"2013年のイベント", "promoter2013"
+			);
+			addEvent(coll, "000000000000000000000003", "Cloud Spiral 2014",
+				newDate(2014, 10, 1, 12, 0, 0), // 2014年10月1日12時JST
+				newDate(2013, 10, 1, 12, 0, 0), // 2013年10月1日12時JST
+				"2014年のイベント", "promoter2014"
+			);
+			addEvent(coll, "000000000000000000000004", "Cloud Spiral 2015",
+				newDate(2015, 6, 1, 12, 0, 0), // 2015年6月1日12時JST
+				newDate(2014, 6, 1, 12, 0, 0), // 2014年6月1日12時JST
+				"2015年のイベント", "promoter2015"
+			);
+			addEvent(coll, "000000000000000000000064", "Cloud Spiral 2014その100",
+				newDate(2014, 10, 1, 12, 1, 0), // 2014年10月1日12時1分JST
+				newDate(2013, 10, 1, 12, 1, 0), // 2013年10月1日12時1分JST
+				"2014年のイベントその100", "promoter2014"
+			);
+			addEvent(coll, "000000000000000000000065", "Cloud Spiral 2014その101",
+				newDate(2014, 10, 1, 12, 0, 1), // 2014年10月1日12時0分1秒JST
+				newDate(2013, 10, 1, 12, 0, 1), // 2013年10月1日12時0分1秒JST
+				"2014年のイベントその101", "promoter2014"
+			);
+			addEvent(coll, "000000000000000000000066", "Cloud Spiral 2014その102",
+				newDate(2014, 10, 1, 12, 0, 1), // 2014年10月1日12時0分1秒JST
+				newDate(2013, 10, 1, 12, 0, 1), // 2013年10月1日12時0分1秒JST
+				"2014年のイベントその102", "promoter2014"
+			);
+			addEvent(coll, "000000000000000000000067", "Cloud Spiral 2014その103",
+				newDate(2014, 10, 1, 12, 0, 0), // 2014年10月1日12時JST
+				newDate(2013, 10, 1, 12, 0, 0), // 2013年10月1日12時JST
+				"2014年のイベントその103", "promoter2014"
+			);
+	}
+
+	public static Date newDate(int year, int month, int mday, int hour, int min, int sec) {
+		return new GregorianCalendar(year, month - 1, mday, hour, min, sec).getTime();
+	}
+
+	private static DBObject newSeat(String seatName, int fee, int count) {
+		DBObject seat = new BasicDBObject();
+		seat.put("seatName", seatName);
+		seat.put("fee", fee);
+		seat.put("count", count);
+		return seat;
+	}
+
+	/**
+	 * eventコレクションに1件追加する．
+	 */
+	private static void addEvent(DBCollection coll,
+			String eventId, String eventName, Date eventDate, Date ticketStartDate,
+			String description, String promoterId)
+	{
+		DBObject event = new BasicDBObject();
+		event.put("eventId",     eventId);
+		event.put("eventName",   eventName);
+		event.put("eventDate",   eventDate);
+		event.put("ticketStartDate", ticketStartDate);
+		event.put("description", description);
+		event.put("promoterId", promoterId);
+		coll.insert(event);
+	}
+}

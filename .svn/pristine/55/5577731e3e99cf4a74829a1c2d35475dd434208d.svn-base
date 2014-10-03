@@ -1,0 +1,186 @@
+package jp.enpit.cloud.eventspiral.view;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ *
+ * 新規イベントを登録するときのフォームクラス．
+ *
+ * @author 2014040 (a-miura)
+ *
+ */
+
+public class EventInfoEntity extends AbstractEntity {
+
+    /**
+     * イベントID
+     */
+	@NotNull(message="必須項目が未入力です")
+	@NotEmpty(message="必須項目が未入力です")
+    private String eventId;
+
+    /**
+     * イベント名
+     */
+	@NotNull(message="必須項目が未入力です")
+	@NotEmpty(message="必須項目が未入力です")
+    private String eventName;
+
+    /**
+     * イベント開催日時
+     */
+	@NotNull(message="必須項目が未入力です")
+    private Date eventDate;
+
+    /**
+     * チケット販売開始日時
+     */
+    @NotNull(message="必須項目が未入力です")
+    private Date ticketStartDate;
+
+    /**
+     * 説明
+     */
+    @NotNull(message="必須項目が未入力です")
+    @NotEmpty(message="必須項目が未入力です")
+    private String description;
+
+    /**
+     * 興行主ID．
+     */
+    @NotNull(message="必須項目が未入力です")
+    @NotEmpty(message="必須項目が未入力です")
+    private String promoterId;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public EventInfoEntity() {
+
+    }
+
+    /**
+     * <ol>
+     *  <li>イベントIDを取得する</li>
+     *</ol>
+     * @return イベントID
+     */
+    public String getEventId() {
+        return eventId;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventIdをフィールドへ登録する</li>
+     * </ol>
+     * @param eventId イベントId
+     */
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    /**
+     * <ol>
+     *  <li>イベント名を取得する</li>
+     *</ol>
+     * @return イベント名
+     */
+    public String getEventName() {
+        return eventName;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventNameをフィールドへ登録する</li>
+     * </ol>
+     * @param eventName イベント名
+     */
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    /**
+     * <ol>
+     *  <li>イベント開催日時を取得する</li>
+     *</ol>
+     * @return イベント開催日時
+     */
+    public Date getEventDate() {
+        return eventDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>eventDateをフィールドへ登録する</li>
+     * </ol>
+     * @param eventDate イベント開催日時
+     */
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>チケット販売開始日時を取得する</li>
+     *</ol>
+     * @return チケット販売開始日時
+     */
+    public Date getTicketStartDate() {
+        return ticketStartDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>ticketStartDateをフィールドへ登録する</li>
+     * </ol>
+     * @param ticketStasrtDate チケット販売開始日時
+     */
+    public void setTicketStartDate(Date ticketStartDate) {
+        this.ticketStartDate = ticketStartDate;
+    }
+
+    /**
+     * <ol>
+     *  <li>説明を取得する</li>
+     *</ol>
+     * @return 説明
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * <ol>
+     *  <li>descriptionをフィールドへ登録する</li>
+     * </ol>
+     * @param description 説明
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * <ol>
+     *  <li>興行主IDを取得する．</li>
+     *</ol>
+     * @return 興行主ID
+     */
+	public String getPromoterId() {
+		return promoterId;
+	}
+
+    /**
+     * <ol>
+     *  <li>promoterIdをフィールドへ登録する．</li>
+     * </ol>
+     * @param promoterId 興行主ID
+     */
+	public void setPromoterId(String promoterId) {
+		this.promoterId = promoterId;
+	}
+
+}
